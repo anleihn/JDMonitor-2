@@ -16,7 +16,11 @@ ql repo https://github.com/tttccz/TczMonitor.git "jd_|t_" "backup" "JS_|notify|p
 
 2、该库支持Redis存放Token操作，可在青龙面板中安装Redis，并设置变量export USE_REDIS=true
 
-tttccz_JDMonitor/t_wx_getToken.js 该文件检测并生成临时Token 12.5分钟后过期
+tttccz_JDMonitor/t_wx_getToken.js 该文件检测并生成临时Token 20多分钟后过期
+
+3、该库支持REDIS_URL配置，默认为青龙内部安装路径，如需配置请设置变量export REDIS_URL="你的REDIS地址"
+
+
 
 # Redis食用方法
 
