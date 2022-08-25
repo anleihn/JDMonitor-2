@@ -575,18 +575,6 @@ async function dealReturn(type, data) {
                     }
                 }
                 break;
-            case 'saveAddressWithGenerateId':
-            case 'saveAddress':
-                console.log(JSON.stringify(res))
-                if (typeof res == 'object') {
-                    if (res.result && res.result === true) {
-                        // console.log(`  🎉🎉🎉地址填写成功，地址为${$.fullAddress}`)
-                        // $.message += `填写成功\n地址为${$.fullAddress}\n`
-                    } else {
-                        console.log(`${type} ${data}`)
-                    }
-                }
-                break;
             case 'getSystime':
                 if (typeof res == 'object') {
                     if (res.isOk && res.isOk === true) {
@@ -602,10 +590,12 @@ async function dealReturn(type, data) {
                 }
                 break;
             case 'accessLogWithAD':
-            case 'drawContent':
+            case 'drawContent': 
+            case 'saveAddressWithGenerateId':
+            case 'saveAddress':
                 break;
             default:
-                console.log(`${type}-> ${data}`);
+                console.log(`${type}->`);
         }
         if (typeof res == 'object') {
             if (res.errorMessage) {
