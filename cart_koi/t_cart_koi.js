@@ -42,7 +42,7 @@ if ($.signUrl == '') {
     console.log(`🈳 请自行搭建sign接口，并设置环境变量-->\n  export JD_SIGN_URL="你的接口地址"`)
     return
 }
-
+$.cartKoiKey = `WuXian:CartKoiIds`
 let TokenKey = "TOKEN_KEY:"
 redisClient = null
 if ($.redisStatus) {
